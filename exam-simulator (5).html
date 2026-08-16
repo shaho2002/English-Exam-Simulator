@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>شبیه‌ساز آزمون زبان انگلیسی</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#1e2a3d;
+    --navy-2:#26374f;
+    --paper:#ffffff;
+    --line:#e4e0d6;
+    --text:#20242c;
+    --muted:#767b86;
+    --brass:#a8762a;
+    --brass-bg:#faf1de;
+    --correct:#2e7d54;
+    --correct-bg:#e7f4ec;
+    --wrong:#c0483d;
+    --wrong-bg:#fbeae8;
+    --info:#2c5a8f;
+    --info-bg:#eaf1f9;
+    --radius:10px;
+    --shadow:0 10px 30px -14px rgba(30,42,61,.25);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:#f2efe8;
+    min-height:100vh;
+    font-family:'Vazirmatn', sans-serif;
+    color:var(--text);
+    line-height:1.6;
+  }
+  .topbar{
+    background:linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 100%);
+    color:#f2efe8;
+    padding:26px 20px;
+    text-align:center;
+  }
+  .topbar .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:#c9b280;
+  }
+  .topbar h1{ font-size:24px; margin:6px 0 4px; font-weight:800;}
+  .topbar p{ margin:0; font-size:13.5px; color:#b9c2d1;}
+
+  .wrap{max-width:880px; margin:0 auto; padding:26px 16px 70px;}
+
+  .card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:26px 26px 28px;
+    margin-bottom:22px;
+  }
+  @media (max-width:600px){ .card{padding:18px 16px 20px;} }
+
+  .card-head{ display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+  .step-num{
+    width:28px; height:28px; border-radius:50%; background:var(--navy); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-weight:800; font-size:13px; flex:none;
+    font-family:'JetBrains Mono',monospace;
+  }
+  .card-head h2{ font-size:17px; margin:0; font-weight:800;}
+  .card-head .sub{ font-size:12.5px; color:var(--muted); margin-top:2px;}
+
+  p.desc{ font-size:14px; color:#454a54; margin:0 0 16px;}
+
+  .exam-form{
+    background:#fbfaf6; border:1px solid var(--line); border-radius:8px;
+    padding:18px 20px 20px; margin-bottom:18px;
+  }
+  .form-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin-bottom:14px; }
+  .form-field{ display:flex; flex-direction:column; gap:6px; }
+  .form-field-full{ margin-bottom:14px; }
+  .form-field label{ font-size:12.5px; font-weight:700; color:#454a54; }
+  .form-field input, .form-field select, .form-field textarea{
+    font-family:'Vazirmatn',sans-serif; font-size:13.5px; padding:9px 11px;
+    border:1px solid var(--line); border-radius:6px; background:#fff; color:var(--text); width:100%;
+  }
+  .form-field textarea{ resize:vertical; font-size:13.5px; }
+  .form-field input:focus, .form-field select:focus, .form-field textarea:focus{ outline:none; border-color:var(--brass); }
+
+  .topic-suggest{ display:flex; flex-wrap:wrap; gap:5px; margin-top:2px; }
+  .topic-suggest-chip{
+    font-family:'Vazirmatn',sans-serif; font-size:11.5px; font-weight:600;
+    background:#f2efe4; color:#6b6250; border:1px solid #e2dbc4; border-radius:20px;
+    padding:4px 11px; cursor:pointer; transition:.12s;
+  }
+  .topic-suggest-chip:hover{ background:var(--brass-bg); border-color:var(--brass); color:#7a5518; }
+  .topic-suggest-chip.picked{ background:var(--navy); border-color:var(--navy); color:#fff; }
+
+  .prompt-toggle-btn{
+    display:inline-flex; align-items:center; gap:7px;
+    background:#fbfaf6; color:var(--navy); border:1px solid var(--line); border-radius:8px;
+    font-family:'Vazirmatn',sans-serif; font-weight:700; font-size:13px;
+    padding:9px 16px; cursor:pointer; transition:.15s; margin-bottom:14px;
+  }
+  .prompt-toggle-btn:hover{ background:var(--brass-bg); border-color:var(--brass); }
+  .prompt-toggle-btn.expanded{ background:var(--navy); color:#fff; border-color:var(--navy); }
+
+  .prompt-box{
+    position:relative;
+    background:#1a1f27;
+    border-radius:8px;
+    overflow:hidden;
+  }
+  .prompt-box textarea{
+    width:100%; height:260px; resize:vertical;
+    background:transparent; color:#dfe3ea; border:none; outline:none;
+    font-family:'JetBrains Mono',monospace; font-size:12.5px; line-height:1.85;
+    padding:18px 18px; white-space:pre-wrap;
+  }
+  .prompt-toolbar{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:9px 14px; background:#12161d; border-top:1px solid #2a303b;
+  }
+  .prompt-toolbar span{ font-family:'JetBrains Mono',monospace; font-size:11px; color:#8d94a3;}
+  .copy-btn{
+    display:inline-flex; align-items:center; gap:6px;
+    background:var(--brass); color:#241a06; border:none; border-radius:6px;
+    font-weight:700; font-size:13px; padding:8px 16px; cursor:pointer; transition:.15s;
+  }
+  .copy-btn:hover{ background:#8f6420; color:#fff5e2; }
+  .copy-btn.copied{ background:var(--correct); color:#fff; }
+  .edit-btn{
+    display:inline-flex; align-items:center; gap:6px;
+    background:transparent; color:#c9cfda; border:1px solid #3a4150; border-radius:6px;
+    font-weight:700; font-size:13px; padding:8px 14px; cursor:pointer; transition:.15s;
+  }
+  .edit-btn:hover{ background:#232a35; color:#fff; }
+  .edit-btn.active{ background:var(--wrong); color:#fff; border-color:var(--wrong); }
+  .prompt-actions{ display:flex; gap:8px; }
+
+  .edit-warning{
+    display:none; align-items:center; gap:8px;
+    background:#4a1512; color:#ff9d92; border-bottom:1px solid #6b241f;
+    padding:10px 16px; font-size:12.5px; line-height:1.7; font-weight:700;
+  }
+  .edit-warning.show{ display:flex; }
+  .prompt-box.editing textarea{ color:#fff5f4; }
+  .prompt-box.editing{ box-shadow:0 0 0 2px var(--wrong); }
+
+  .prompt-footer-actions{ display:none; gap:10px; flex-wrap:wrap; margin-top:12px; }
+  .prompt-footer-actions.show{ display:flex; }
+  .btn-outline-danger{
+    background:transparent; color:var(--wrong); border:1.5px solid var(--wrong);
+  }
+  .btn-outline-danger:hover{ background:var(--wrong-bg); }
+
+  .btn{
+    font-family:'Vazirmatn',sans-serif; font-weight:700; font-size:14px;
+    border:none; border-radius:8px; padding:11px 20px; cursor:pointer;
+    transition:.15s; display:inline-flex; align-items:center; gap:8px; justify-content:center;
+  }
+  .btn-primary{ background:var(--navy); color:#fff; }
+  .btn-primary:hover{ background:var(--navy-2); }
+  .btn-primary:disabled{ opacity:.45; cursor:not-allowed; }
+  .btn-ghost{ background:#f2efe8; color:var(--navy); border:1px solid var(--line); }
+  .btn-ghost:hover{ background:#e9e4d6; }
+  .btn-danger{ background:var(--wrong); color:#fff; }
+  .btn-danger:hover{ background:#9c382f; }
+  .btn-block{ width:100%; }
+  .btn-row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+  .export-note{ font-size:12.5px; color:var(--muted); margin:12px 0 0; line-height:1.8; }
+
+  .import-tabs{ display:flex; gap:8px; margin-bottom:14px; border-bottom:1px solid var(--line); }
+  .import-tab{
+    font-family:'Vazirmatn',sans-serif; font-weight:700; font-size:13.5px;
+    background:transparent; border:none; border-bottom:2px solid transparent;
+    color:var(--muted); padding:9px 6px 11px; cursor:pointer; transition:.15s;
+  }
+  .import-tab:hover{ color:var(--navy); }
+  .import-tab.active{ color:var(--navy); border-bottom-color:var(--brass); }
+  .import-panel.hidden{ display:none; }
+  .paste-box textarea{
+    width:100%; min-height:180px; border:1px solid var(--line); border-radius:8px;
+    padding:14px; font-family:'JetBrains Mono',monospace; font-size:12.5px; line-height:1.8;
+    resize:vertical; background:#fbfaf6; color:var(--text);
+  }
+  .paste-box textarea:focus{ outline:none; border-color:var(--brass); }
+
+  /* -------- import area -------- */
+  .dropzone{
+    border:2px dashed #cbc3ab;
+    border-radius:8px;
+    padding:30px 18px;
+    text-align:center;
+    cursor:pointer;
+    background:#fbfaf6;
+    display:block;
+  }
+  .dropzone:hover, .dropzone.drag{ border-color:var(--brass); background:var(--brass-bg); }
+  .dropzone .main{ font-weight:700; font-size:14.5px; }
+  .dropzone .sub{ color:var(--muted); font-size:12px; margin-top:4px; }
+  input[type=file]{ display:none; }
+
+  .errbox{
+    margin-top:14px; background:var(--wrong-bg); border:1px solid #eabab3;
+    border-radius:8px; padding:14px 16px; color:#8c332a; font-size:13px;
+  }
+  .errbox strong{ display:block; margin-bottom:6px; }
+  .errbox ul{ margin:0; padding-inline-start:18px; }
+
+  .preview{
+    margin-top:16px; border:1px solid var(--line); border-radius:8px;
+    background:#fbfaf6; padding:18px 20px;
+  }
+  .preview-title{ font-weight:800; font-size:16.5px; margin:0 0 3px; }
+  .preview-desc{ color:var(--muted); font-size:13px; margin:0 0 14px; }
+  .meta-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:12px; margin-bottom:14px; }
+  .meta-item{ background:#fff; border:1px solid var(--line); border-radius:6px; padding:10px 12px; }
+  .meta-item .k{ font-family:'JetBrains Mono',monospace; font-size:9.5px; letter-spacing:.08em; color:var(--muted); text-transform:uppercase; }
+  .meta-item .v{ font-weight:800; font-size:15px; margin-top:2px; }
+  .topics-row{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px; }
+  .chip{ font-size:11px; background:var(--brass-bg); color:#7a5518; border:1px solid #ecd9b3; padding:3px 10px; border-radius:20px; }
+
+  /* -------- exam area -------- */
+  .exam-topbar{
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+    padding-bottom:14px; margin-bottom:18px; border-bottom:1px solid var(--line); flex-wrap:wrap;
+  }
+  .exam-title-mini{ font-weight:800; font-size:15.5px; }
+  .exam-progress{ font-size:12px; color:var(--muted); font-family:'JetBrains Mono',monospace; margin-top:2px;}
+  .timer-badge{
+    font-family:'JetBrains Mono',monospace; font-weight:800; font-size:18px;
+    border:2px solid var(--navy); color:var(--navy); border-radius:30px; padding:7px 18px;
+  }
+  .timer-badge.low{ border-color:var(--wrong); color:var(--wrong); animation:pulse 1s infinite; }
+  @keyframes pulse{ 0%,100%{box-shadow:0 0 0 0 rgba(192,72,61,.35)} 50%{box-shadow:0 0 0 7px rgba(192,72,61,0)} }
+
+  .progress-wrap{ margin-bottom:18px; }
+  .progress-labels{ display:flex; justify-content:space-between; font-size:11.5px; color:var(--muted); font-family:'JetBrains Mono',monospace; margin-bottom:6px; }
+  .progress-bar-outer{ width:100%; height:9px; background:#eae6da; border-radius:20px; overflow:hidden; }
+  .progress-bar-inner{ height:100%; background:linear-gradient(90deg, var(--brass), #c99a4c); border-radius:20px; transition:width .25s ease; width:0%; }
+
+  .palette{ display:flex; flex-wrap:wrap; gap:7px; margin-bottom:20px; }
+  .palette button{
+    width:32px; height:32px; border-radius:6px; border:1px solid var(--line);
+    background:#fbfaf6; font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:700;
+    cursor:pointer; color:var(--muted); position:relative;
+  }
+  .palette button.answered{ background:var(--brass-bg); border-color:var(--brass); color:#7a5518; }
+  .palette button.current{ outline:2px solid var(--navy); outline-offset:2px; }
+  .palette button.essay-type::after{
+    content:""; position:absolute; top:-3px; left:-3px; width:6px; height:6px; border-radius:50%; background:var(--info);
+  }
+
+  .q-card{ border:1px solid var(--line); border-radius:8px; background:#fbfaf6; padding:20px 22px; margin-bottom:18px; }
+  .q-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px; }
+  .q-tag{ font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
+  .q-topic-chip{ font-size:11px; background:var(--info-bg); color:var(--info); border:1px solid #cfe0f0; padding:3px 10px; border-radius:20px; }
+  .q-prompt{ font-size:16px; line-height:1.85; font-weight:700; margin-bottom:16px; }
+
+  .option{
+    display:flex; align-items:flex-start; gap:10px; border:1px solid var(--line); border-radius:8px;
+    padding:12px 14px; margin-bottom:9px; cursor:pointer; background:#fff; transition:.12s; font-size:14.5px; line-height:1.7;
+  }
+  .option:hover{ border-color:var(--brass); }
+  .option.selected{ border-color:var(--brass); background:var(--brass-bg); }
+  .option .letter{
+    font-family:'JetBrains Mono',monospace; font-weight:800; color:var(--brass);
+    border:1.5px solid var(--brass); border-radius:50%; width:22px; height:22px;
+    display:flex; align-items:center; justify-content:center; font-size:11px; flex:none;
+  }
+
+  textarea.essay-input{
+    width:100%; min-height:150px; border:1px solid var(--line); border-radius:8px;
+    padding:14px; font-family:'Vazirmatn',sans-serif; font-size:14.5px; line-height:1.85; resize:vertical; background:#fff;
+  }
+  textarea.essay-input:focus{ outline:none; border-color:var(--brass); }
+  .word-count{ text-align:left; font-size:11px; color:var(--muted); margin-top:6px; font-family:'JetBrains Mono',monospace; }
+
+  .nav-row{ display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+  .nav-row .side{ display:flex; gap:10px; }
+
+  /* -------- results area -------- */
+  .score-banner{
+    display:flex; flex-wrap:wrap; gap:16px; align-items:center; justify-content:space-between;
+    border:1px solid var(--line); border-radius:8px; padding:18px 20px; margin-bottom:20px; background:#fbfaf6;
+  }
+  .score-big{ font-weight:800; font-size:30px; }
+  .score-big small{ font-size:14px; font-weight:600; color:var(--muted); }
+  .score-sub{ font-size:12px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+
+  .review-card{ border:1px solid var(--line); border-radius:8px; background:#fbfaf6; padding:18px 20px; margin-bottom:14px; border-inline-start-width:4px; }
+  .review-card.correct-border{ border-inline-start-color:var(--correct); }
+  .review-card.wrong-border{ border-inline-start-color:var(--wrong); }
+  .review-card.essay-border{ border-inline-start-color:var(--info); }
+  .review-opt{ border-radius:6px; border:1px solid var(--line); padding:9px 12px; margin-bottom:7px; font-size:13.5px; display:flex; gap:9px; align-items:center; background:#fff; }
+  .review-opt.is-correct{ background:var(--correct-bg); border-color:var(--correct); color:#1f5c3d; }
+  .review-opt.is-wrong{ background:var(--wrong-bg); border-color:var(--wrong); color:#8c332a; }
+  .review-opt .mark{ margin-inline-start:auto; font-size:11px; font-weight:700; white-space:nowrap; }
+  .badge{ font-size:11px; font-weight:800; padding:3px 10px; border-radius:20px; font-family:'JetBrains Mono',monospace; }
+  .badge.ok{ background:var(--correct-bg); color:var(--correct); }
+  .badge.no{ background:var(--wrong-bg); color:var(--wrong); }
+  .badge.essay{ background:var(--info-bg); color:var(--info); }
+  .essay-answer-box{ background:#fff; border:1px solid var(--line); border-radius:6px; padding:12px 14px; font-size:14px; line-height:1.85; white-space:pre-wrap; }
+
+  .hidden{ display:none !important; }
+  .toast{
+    position:fixed; bottom:22px; left:50%; transform:translateX(-50%);
+    background:var(--navy); color:#f2efe8; padding:10px 20px; border-radius:30px;
+    font-size:13px; box-shadow:var(--shadow); z-index:80;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="eyebrow">English Exam Simulator</div>
+  <h1>شبیه‌ساز آزمون زبان انگلیسی</h1>
+  <p>پرامپت بساز → فایل آزمون بگیر → آزمون بده → نتیجه را دانلود کن. همه چیز در همین یک صفحه.</p>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ CARD 1: PROMPT ============ -->
+  <div class="card" id="promptCard">
+    <div class="card-head">
+      <div class="step-num">۱</div>
+      <div>
+        <h2>ساخت فایل آزمون با هوش مصنوعی</h2>
+        <div class="sub">این پرامپت را کپی کن و به هر هوش مصنوعی (Claude، ChatGPT، Gemini و ...) بده</div>
+      </div>
+    </div>
+    <p class="desc">اطلاعات آزمون مورد نظرت را در فرم زیر پر کن؛ پرامپت به‌طور خودکار بر همان اساس ساخته می‌شود. سپس آن را کپی کن و به هر هوش مصنوعی (Claude، ChatGPT، Gemini و ...) بده تا یک فایل JSON کاملاً سازگار با این برنامه تحویل بدهد.</p>
+
+    <div class="exam-form" id="examForm">
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="fTopics">موضوعات/مباحث آزمون</label>
+          <input type="text" id="fTopics" placeholder="مثلاً: Grammar, Vocabulary, Reading">
+          <div class="topic-suggest" id="topicSuggest">
+            <button type="button" class="topic-suggest-chip" data-topic="Grammar">Grammar</button>
+            <button type="button" class="topic-suggest-chip" data-topic="Vocabulary">Vocabulary</button>
+            <button type="button" class="topic-suggest-chip" data-topic="Reading">Reading</button>
+            <button type="button" class="topic-suggest-chip" data-topic="Writing">Writing</button>
+            <button type="button" class="topic-suggest-chip" data-topic="Listening">Listening</button>
+            <button type="button" class="topic-suggest-chip" data-topic="Speaking">Speaking</button>
+            <button type="button" class="topic-suggest-chip" data-topic="Pronunciation">Pronunciation</button>
+            <button type="button" class="topic-suggest-chip" data-topic="Idioms">Idioms</button>
+            <button type="button" class="topic-suggest-chip" data-topic="Business English">Business English</button>
+            <button type="button" class="topic-suggest-chip" data-topic="IELTS">IELTS</button>
+            <button type="button" class="topic-suggest-chip" data-topic="TOEFL">TOEFL</button>
+            <button type="button" class="topic-suggest-chip" data-topic="Conversation">Conversation</button>
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="fLevel">سطح آزمون</label>
+          <select id="fLevel">
+            <option value="">انتخاب کنید...</option>
+            <option value="مبتدی (Beginner / A1-A2)">مبتدی (Beginner / A1-A2)</option>
+            <option value="متوسط (Intermediate / B1-B2)">متوسط (Intermediate / B1-B2)</option>
+            <option value="پیشرفته (Advanced / C1-C2)">پیشرفته (Advanced / C1-C2)</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="fMcqCount">تعداد سؤالات چهارگزینه‌ای</label>
+          <input type="number" id="fMcqCount" min="0" value="4">
+        </div>
+        <div class="form-field">
+          <label for="fEssayCount">تعداد سؤالات تشریحی</label>
+          <input type="number" id="fEssayCount" min="0" value="2">
+        </div>
+        <div class="form-field">
+          <label for="fDuration">مدت زمان آزمون (دقیقه)</label>
+          <input type="number" id="fDuration" min="1" value="20">
+        </div>
+        <div class="form-field">
+          <label for="fLanguage">زبان صورت سؤالات</label>
+          <select id="fLanguage">
+            <option value="انگلیسی">انگلیسی</option>
+            <option value="فارسی">فارسی</option>
+            <option value="ترکیبی (دو زبانه)">ترکیبی (دو زبانه)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-field form-field-full">
+        <label for="fNotes">نکات یا محدودیت‌های اضافی (اختیاری)</label>
+        <textarea id="fNotes" rows="2" placeholder="مثلاً: تمرکز روی Present Perfect، لغات درس ۵ کتاب..."></textarea>
+      </div>
+      <div id="formErrBox" class="errbox hidden"></div>
+      <button class="btn btn-primary btn-block" id="buildPromptBtn">🧩 ساخت پرامپت بر اساس این اطلاعات</button>
+    </div>
+
+    <button class="prompt-toggle-btn" id="togglePromptBtn">
+      <span id="toggleIcon">👁</span> <span id="toggleLabel">نمایش پرامپت</span>
+    </button>
+
+    <div id="promptContainer" class="hidden">
+      <div class="prompt-box" id="promptBox">
+        <div class="edit-warning" id="editWarning">⚠️ شما در حال ویرایش پرامپت هستید — تغییر ساختار توضیح‌داده‌شده ممکن است باعث شود فایل JSON تولیدی توسط هوش مصنوعی با این برنامه سازگار نباشد.</div>
+        <textarea id="promptText" readonly spellcheck="false"></textarea>
+        <div class="prompt-toolbar">
+          <span>آماده برای کپی و ارسال به هوش مصنوعی</span>
+          <div class="prompt-actions">
+            <button class="edit-btn" id="editPromptBtn">✏️ ویرایش پرامپت</button>
+            <button class="copy-btn" id="copyPromptBtn">📋 کپی پرامپت</button>
+          </div>
+      </div>
+    </div>
+      <div class="prompt-footer-actions" id="promptFooterActions">
+        <button class="btn btn-outline-danger" id="resetPromptBtn">↺ بازگشت به پرامپت پیش‌فرض</button>
+        <button class="btn btn-ghost" id="downloadCustomPromptBtn">⬇ دانلود پرامپت شخصی‌سازی‌شده</button>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" id="downloadSampleBtn">⬇ دانلود یک نمونه فایل آزمون آماده</button>
+    </div>
+  </div>
+
+  <!-- ============ CARD 2: APP ============ -->
+  <div class="card" id="appCard">
+    <div class="card-head">
+      <div class="step-num">۲</div>
+      <div>
+        <h2>اجرای آزمون</h2>
+        <div class="sub" id="stepSubtitle">فایل JSON آزمون را ایمپورت کن تا شروع کنیم</div>
+      </div>
+    </div>
+
+    <!-- ---- import screen ---- -->
+    <section id="screen-import">
+      <div class="import-tabs">
+        <button class="import-tab active" id="tabFileBtn" type="button">📁 آپلود فایل</button>
+        <button class="import-tab" id="tabPasteBtn" type="button">📋 چسباندن متن JSON</button>
+      </div>
+
+      <div id="panelFile" class="import-panel">
+        <label class="dropzone" id="dropzone">
+          <div class="main">📄 فایل JSON آزمون را اینجا رها کن یا کلیک کن</div>
+          <div class="sub">فقط فایل با پسوند json — طبق ساختار بالا</div>
+          <input type="file" id="fileInput" accept="application/json,.json">
+        </label>
+      </div>
+
+      <div id="panelPaste" class="import-panel hidden">
+        <div class="paste-box">
+          <textarea id="pasteInput" placeholder="محتوای JSON آزمون را اینجا کپی‌پیست کن... (مثلاً وقتی هوش مصنوعی به‌جای فایل، متن JSON را مستقیم در پیام برایت فرستاده)"></textarea>
+        </div>
+        <button class="btn btn-primary btn-block" id="pasteImportBtn" style="margin-top:12px;">بررسی و ادامه</button>
+      </div>
+
+      <div id="errBox" class="errbox hidden"></div>
+
+      <div id="previewCard" class="preview hidden">
+        <p class="preview-title" id="pvTitle"></p>
+        <p class="preview-desc" id="pvDesc"></p>
+        <div class="meta-grid">
+          <div class="meta-item"><div class="k">مدت زمان</div><div class="v" id="pvDuration"></div></div>
+          <div class="meta-item"><div class="k">تعداد سؤال</div><div class="v" id="pvCount"></div></div>
+          <div class="meta-item"><div class="k">چهارگزینه‌ای</div><div class="v" id="pvMcq"></div></div>
+          <div class="meta-item"><div class="k">تشریحی</div><div class="v" id="pvEssay"></div></div>
+        </div>
+        <div class="topics-row" id="pvTopics"></div>
+        <button class="btn btn-primary btn-block" id="startBtn">شروع آزمون</button>
+      </div>
+    </section>
+
+    <!-- ---- exam screen ---- -->
+    <section id="screen-exam" class="hidden">
+      <div class="exam-topbar">
+        <div>
+          <div class="exam-title-mini" id="examTitleMini"></div>
+          <div class="exam-progress" id="examProgressText"></div>
+        </div>
+        <div class="timer-badge" id="timerBadge">00:00</div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-labels">
+          <span id="progressLabel">۰ از ۰ سؤال پاسخ داده شده</span>
+          <span id="progressPercent">۰٪</span>
+        </div>
+        <div class="progress-bar-outer"><div class="progress-bar-inner" id="progressBarInner"></div></div>
+      </div>
+
+      <div class="palette" id="palette"></div>
+      <div id="qCardHolder"></div>
+
+      <div class="nav-row">
+        <div class="side">
+          <button class="btn btn-ghost" id="prevBtn">‹ سؤال قبل</button>
+          <button class="btn btn-ghost" id="nextBtn">سؤال بعد ›</button>
+        </div>
+        <button class="btn btn-danger" id="finishBtn">پایان آزمون</button>
+      </div>
+    </section>
+
+    <!-- ---- results screen ---- -->
+    <section id="screen-results" class="hidden">
+      <div class="score-banner">
+        <div>
+          <div class="score-big"><span id="scoreCorrect"></span>/<span id="scoreTotal"></span> <small>پاسخ تستی درست</small></div>
+          <div class="score-sub" id="scorePercent"></div>
+        </div>
+        <div class="score-sub" id="finishInfo"></div>
+      </div>
+
+      <div id="reviewList"></div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" id="exportBtn">⬇ دانلود نتیجه (JSON)</button>
+        <button class="btn btn-ghost" id="restartBtn">آزمون جدید</button>
+      </div>
+      <p class="export-note">این فایل خروجی، هم سؤالات و پاسخ‌هایت را دارد و هم دستورالعمل تصحیح برای هوش مصنوعی را در خودش جا داده — کافیست همین یک فایل را برای هوش مصنوعی ارسال کنی.</p>
+    </section>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* =========================================================
+     0. THE AI PROMPT (shown in the textarea, copy-ready)
+     ========================================================= */
+  const SCHEMA_AND_RULES = `مرحله تولید فایل JSON:
+خروجی نهایی باید فقط و فقط یک بلوک JSON معتبر باشد؛ بدون هیچ توضیح اضافه، بدون مقدمه، بدون خط اضافه قبل یا بعد از آن. دقیقاً از این ساختار پیروی کن:
+
+{
+  "meta": {
+    "schemaVersion": "1.0",
+    "examTitle": "string - عنوان آزمون",
+    "description": "string - توضیح کوتاه، اختیاری",
+    "topics": ["string", "..."],
+    "durationMinutes": number,
+    "totalQuestions": number
+  },
+  "questions": [
+    {
+      "id": "q1",
+      "type": "multiple_choice",
+      "topic": "string - باید یکی از مقادیر آرایه topics در meta باشد",
+      "points": number,
+      "prompt": "متن کامل سؤال",
+      "options": [
+        { "id": "a", "text": "متن گزینه" },
+        { "id": "b", "text": "متن گزینه" },
+        { "id": "c", "text": "متن گزینه" },
+        { "id": "d", "text": "متن گزینه" }
+      ],
+      "correctOptionId": "یکی از مقادیر id گزینه‌ها بالا، مثلاً b"
+    },
+    {
+      "id": "q2",
+      "type": "essay",
+      "topic": "string",
+      "points": number,
+      "prompt": "متن کامل سؤال تشریحی",
+      "guidance": "راهنمای کوتاه برای طول/محدوده پاسخ مورد انتظار (این فیلد به‌عنوان جواب نمایش داده نمی‌شود، صرفاً راهنمای طراحی است)"
+    }
+  ]
+}
+
+قوانین اجباری:
+- هر "id" سؤال باید یکتا باشد (q1, q2, q3, ...) و به ترتیب باشد.
+- تعداد اعضای آرایه "questions" باید دقیقاً برابر مقدار "totalQuestions" در meta باشد.
+- برای سؤالات "multiple_choice": حتماً دقیقاً ۴ گزینه با id های "a", "b", "c", "d" بگذار و "correctOptionId" باید دقیقاً برابر یکی از این چهار id باشد. جواب درست را هرگز داخل متن "prompt" لو نده.
+- برای سؤالات "essay": هرگز فیلد "options" یا "correctOptionId" اضافه نکن؛ فقط "guidance" اختیاری است.
+- هیچ فیلد اضافه یا نام متفاوتی به ساختار اضافه نکن؛ فقط همین فیلدها.
+- هدف سؤالات، سنجش واقعی سطح کاربر در زبان انگلیسی است (گرامر، واژگان، درک مطلب، نگارش و مهارت‌های مشابه)، نه سنجش اطلاعات کاربر درباره‌ی خودِ آزمون‌های استاندارد. اگر سطح یا سبک انتخابی IELTS یا TOEFL بود، سؤالات باید از نظر دشواری و سبک هم‌تراز با سؤالات واقعی آن آزمون‌ها طراحی شوند، اما هرگز نباید درباره‌ی نحوه‌ی برگزاری، ثبت‌نام، ساختار بخش‌ها، زمان‌بندی رسمی یا سایر اطلاعات اداری/معرفی آن آزمون‌ها سؤال طرح شود.
+- بسیار مهم - نحوه‌ی تحویل خروجی (این قانون هیچ استثنایی ندارد): خروجی باید همیشه به یکی از این دو شکل تحویل داده شود، و هرگز به‌صورت متن ساده و بدون قالب‌بندی وسط پیام نوشته نشود:
+  ۱) اگر پلتفرمی که در آن صحبت می‌کنیم امکان ساخت و ارائه‌ی فایل واقعی و قابل دانلود را دارد، این حالت اولویت اول و الزامی است: حتماً از آن قابلیت استفاده کن و فایل را با پسوند .json به کاربر بده.
+  ۲) اگر و فقط اگر پلتفرم چنین امکانی را ندارد، باید کل JSON را داخل یک بلوک کد کامل با علامت \`\`\`json در ابتدا و \`\`\` در انتها بنویسی (نه به‌صورت متن خام بیرون از بلوک کد)، طوری که با یک کلیک به‌طور کامل قابل کپی باشد. در این حالت استفاده از بلوک کد اجباری است، نه اختیاری.
+  در هیچ حالتی JSON را به‌صورت متن خام و بدون بلوک کد و بدون فایل، وسط پیام رها نکن - چون در این حالت کاربر نمی‌تواند آن را به‌درستی کپی یا دانلود کند.
+- خروجی باید JSON خالص و معتبر (parseable) باشد.
+- بلافاصله بعد از ارائه‌ی JSON (چه به‌صورت فایل، چه به‌صورت بلوک کد)، فقط این یک جمله را به‌عنوان کل پیام باقی‌مانده بنویس: "منتظر پاسخ شما هستم." هیچ توضیح، خلاصه، تحلیل یا متن اضافه‌ی دیگری ننویس - نه قبل از JSON و نه بعد از آن (به‌جز همان یک جمله).`;
+
+  const GENERIC_PROMPT = `تو یک طراح آزمون زبان انگلیسی هستی و باید خروجی‌ات را دقیقاً طبق یک قالب JSON مشخص تولید کنی تا در یک برنامه وب شبیه‌ساز آزمون قابل ایمپورت باشد. قبل از تولید فایل، این مراحل را رعایت کن:
+
+مرحله ۱ - پرسش از کاربر:
+پیش از تولید JSON، حتماً این سؤالات را از من (کاربر) بپرس و منتظر پاسخ بمان. سؤالات را یکجا و شماره‌گذاری‌شده بپرس:
+1. موضوع/مباحث آزمون چیست؟ (مثلاً Grammar، Vocabulary، Reading، Writing، IELTS/TOEFL-style و ...)
+2. سطح آزمون چیست؟ (Beginner / Intermediate / Advanced یا معادل CEFR مثل A2, B1, C1)
+3. چند سؤال چهارگزینه‌ای و چند سؤال تشریحی می‌خواهم؟ (عدد دقیق برای هرکدام)
+4. مدت‌زمان کل آزمون به دقیقه چقدر باشد؟
+5. زبان صورت سؤال‌ها چه باشد؟ (انگلیسی، فارسی، یا ترکیبی)
+6. آیا نکته یا محدودیت خاص دیگری هست؟ (مثلاً تمرکز روی گرامر خاص، لغات یک درس خاص، سبک نگارش رسمی/غیررسمی و ...)
+
+فقط بعد از دریافت پاسخ این سؤالات وارد مرحله ۲ شو. اگر کاربر پاسخ ناقص داد، برای موارد نامشخص یک پیش‌فرض منطقی انتخاب کن و آن را در پیام (نه داخل JSON) اعلام کن.
+
+${SCHEMA_AND_RULES}`;
+
+  function buildPromptFromForm(v){
+    return `تو یک طراح آزمون زبان انگلیسی هستی و باید خروجی‌ات را دقیقاً طبق یک قالب JSON مشخص تولید کنی تا در یک برنامه وب شبیه‌ساز آزمون قابل ایمپورت باشد.
+
+مشخصات آزمونی که باید بسازی، طبق اطلاعاتی که من (کاربر) از قبل مشخص کرده‌ام، به شرح زیر است:
+- موضوعات/مباحث آزمون: ${v.topics}
+- سطح آزمون: ${v.level}
+- تعداد سؤالات چهارگزینه‌ای: ${v.mcqCount}
+- تعداد سؤالات تشریحی: ${v.essayCount}
+- مجموع تعداد سؤالات: ${v.mcqCount + v.essayCount}
+- مدت‌زمان کل آزمون: ${v.duration} دقیقه
+- زبان صورت سؤال‌ها: ${v.language}
+- نکات یا محدودیت‌های اضافی: ${v.notes || 'موردی ذکر نشده'}
+
+پیش از تولید فایل JSON، این اطلاعات را بررسی کن. اگر هر کدام از موارد بالا ناقص، مبهم، متناقض یا نامعتبر به نظر می‌رسد (مثلاً موضوع خالی یا نامفهوم است، تعداد سؤالات با موضوعات انتخابی هم‌خوانی ندارد، مدت‌زمان برای این تعداد سؤال غیرمنطقی است، یا هر ابهام دیگری وجود دارد)، به‌جای تولید JSON، همان مورد نامشخص را دقیقاً و به‌صورت پرسش از من (کاربر) بپرس و منتظر پاسخ بمان - در این حالت هیچ JSON ی تولید نکن تا پاسخ روشنی دریافت کنی. اگر همه‌ی اطلاعات بالا معتبر، کامل و بدون تناقض بود، مستقیماً وارد مرحله‌ی تولید فایل JSON شو و چیز دیگری از من نپرس.
+
+${SCHEMA_AND_RULES}`;
+  }
+
+  let AI_PROMPT = GENERIC_PROMPT;
+
+  document.getElementById('promptText').value = AI_PROMPT;
+
+  /* ---- topic quick-pick chips ---- */
+  document.querySelectorAll('.topic-suggest-chip').forEach(chip => {
+    chip.addEventListener('click', function(){
+      const topic = this.getAttribute('data-topic');
+      const input = document.getElementById('fTopics');
+      const current = input.value.split(',').map(s => s.trim()).filter(Boolean);
+      const exists = current.some(t => t.toLowerCase() === topic.toLowerCase());
+      if (exists){
+        input.value = current.filter(t => t.toLowerCase() !== topic.toLowerCase()).join(', ');
+        this.classList.remove('picked');
+      } else {
+        current.push(topic);
+        input.value = current.join(', ');
+        this.classList.add('picked');
+      }
+    });
+  });
+
+  /* ---- prompt visibility toggle ---- */
+  const promptContainer = document.getElementById('promptContainer');
+  const togglePromptBtn = document.getElementById('togglePromptBtn');
+  const toggleIcon = document.getElementById('toggleIcon');
+  const toggleLabel = document.getElementById('toggleLabel');
+  function setPromptVisible(visible){
+    promptContainer.classList.toggle('hidden', !visible);
+    togglePromptBtn.classList.toggle('expanded', visible);
+    toggleIcon.textContent = visible ? '🙈' : '👁';
+    toggleLabel.textContent = visible ? 'مخفی کردن پرامپت' : 'نمایش پرامپت';
+  }
+  togglePromptBtn.addEventListener('click', () => setPromptVisible(promptContainer.classList.contains('hidden')));
+
+  document.getElementById('buildPromptBtn').addEventListener('click', function(){
+    const topics = document.getElementById('fTopics').value.trim();
+    const level = document.getElementById('fLevel').value;
+    const mcqCount = parseInt(document.getElementById('fMcqCount').value, 10);
+    const essayCount = parseInt(document.getElementById('fEssayCount').value, 10);
+    const duration = parseInt(document.getElementById('fDuration').value, 10);
+    const language = document.getElementById('fLanguage').value;
+    const notes = document.getElementById('fNotes').value.trim();
+
+    const formErrBox = document.getElementById('formErrBox');
+    const errors = [];
+    if (!topics) errors.push('موضوعات/مباحث آزمون را وارد کن.');
+    if (!level) errors.push('سطح آزمون را انتخاب کن.');
+    if (isNaN(mcqCount) || mcqCount < 0) errors.push('تعداد سؤالات چهارگزینه‌ای باید عدد معتبر (صفر یا بیشتر) باشد.');
+    if (isNaN(essayCount) || essayCount < 0) errors.push('تعداد سؤالات تشریحی باید عدد معتبر (صفر یا بیشتر) باشد.');
+    if (!isNaN(mcqCount) && !isNaN(essayCount) && (mcqCount + essayCount) < 1) errors.push('مجموع تعداد سؤالات باید حداقل ۱ باشد.');
+    if (isNaN(duration) || duration < 1) errors.push('مدت‌زمان آزمون باید عدد معتبر و بزرگ‌تر از صفر باشد.');
+    if (!language) errors.push('زبان صورت سؤالات را انتخاب کن.');
+
+    if (errors.length){
+      formErrBox.classList.remove('hidden');
+      formErrBox.innerHTML = '<strong>لطفاً این موارد را تکمیل کن:</strong><ul>' + errors.map(e => '<li>' + escapeHtml(e) + '</li>').join('') + '</ul>';
+      return;
+    }
+    formErrBox.classList.add('hidden');
+
+    const generated = buildPromptFromForm({ topics, level, mcqCount, essayCount, duration, language, notes });
+    AI_PROMPT = generated;
+    if (isEditingPrompt) exitEditMode();
+    document.getElementById('promptText').value = AI_PROMPT;
+    setPromptVisible(true);
+    showToast('پرامپت بر اساس اطلاعات وارد‌شده ساخته شد.');
+    document.getElementById('promptBox').scrollIntoView({behavior:'smooth', block:'center'});
+  });
+
+  document.getElementById('copyPromptBtn').addEventListener('click', function(){
+    const ta = document.getElementById('promptText');
+    const btn = this;
+    function done(){
+      const original = '📋 کپی پرامپت';
+      btn.textContent = '✅ کپی شد';
+      btn.classList.add('copied');
+      setTimeout(()=>{ btn.textContent = original; btn.classList.remove('copied'); }, 1800);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(ta.value).then(done).catch(()=>{
+        ta.select(); document.execCommand('copy'); done();
+      });
+    } else {
+      ta.select(); document.execCommand('copy'); done();
+    }
+  });
+
+  /* ---- edit prompt flow ---- */
+  const promptBox = document.getElementById('promptBox');
+  const promptTextEl = document.getElementById('promptText');
+  const editWarning = document.getElementById('editWarning');
+  const editPromptBtn = document.getElementById('editPromptBtn');
+  const promptFooterActions = document.getElementById('promptFooterActions');
+  let isEditingPrompt = false;
+
+  function enterEditMode(){
+    isEditingPrompt = true;
+    promptTextEl.removeAttribute('readonly');
+    promptBox.classList.add('editing');
+    editWarning.classList.add('show');
+    promptFooterActions.classList.add('show');
+    editPromptBtn.textContent = '🔒 قفل کردن ویرایش';
+    editPromptBtn.classList.add('active');
+    promptTextEl.focus();
+  }
+  function exitEditMode(){
+    isEditingPrompt = false;
+    promptTextEl.setAttribute('readonly', 'true');
+    promptBox.classList.remove('editing');
+    editWarning.classList.remove('show');
+    promptFooterActions.classList.remove('show');
+    editPromptBtn.textContent = '✏️ ویرایش پرامپت';
+    editPromptBtn.classList.remove('active');
+  }
+
+  editPromptBtn.addEventListener('click', function(){
+    if (isEditingPrompt){
+      exitEditMode();
+      return;
+    }
+    const confirmed = window.confirm(
+      'ویرایش پرامپت ممکن است ساختار توضیح‌داده‌شده در آن را تغییر دهد و باعث شود فایل JSON تولیدشده توسط هوش مصنوعی با این برنامه سازگار نباشد.\n\nاگر مطمئن نیستید دقیقاً چه چیزی را تغییر می‌دهید، این کار را انجام ندهید.\n\nآیا مطمئن هستید که می‌خواهید ویرایش را شروع کنید؟'
+    );
+    if (confirmed) enterEditMode();
+  });
+
+  document.getElementById('resetPromptBtn').addEventListener('click', function(){
+    promptTextEl.value = AI_PROMPT;
+    exitEditMode();
+    showToast('پرامپت به حالت پیش‌فرض بازگشت.');
+  });
+
+  document.getElementById('downloadCustomPromptBtn').addEventListener('click', function(){
+    const blob = new Blob([promptTextEl.value], {type:'text/plain;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'custom-exam-prompt.txt';
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+    showToast('پرامپت شخصی‌سازی‌شده دانلود شد.');
+  });
+
+  const GRADING_INSTRUCTIONS = `تو یک مصحح و مربی زبان انگلیسی هستی. این فایل JSON که دریافت کرده‌ای خروجی یک آزمون شبیه‌سازی‌شده‌ی زبان انگلیسی است که توسط کاربر تکمیل شده:
+- در کلید "examMeta" اطلاعات کلی آزمون (عنوان، مباحث، مدت زمان) آمده است.
+- در کلید "answers" لیست تمام سؤالات به همراه پاسخ کاربر قرار دارد. سؤالات چهارگزینه‌ای دارای فیلدهای "options"، "correctOptionId" (پاسخ صحیح)، "selectedOptionId" (پاسخ کاربر) و "isCorrect" هستند. سؤالات تشریحی دارای فیلد "answerText" با متن پاسخ کاربر هستند.
+- در کلید "score" نمره‌ی بخش چهارگزینه‌ای از قبل محاسبه شده است.
+
+لطفاً موارد زیر را روی همین داده انجام بده:
+۱. خلاصه‌ی عملکرد: یک جمع‌بندی کوتاه از عملکرد کلی کاربر بده، به تفکیک مباحث (topic) - در کدام مباحث قوی بوده و در کدام ضعیف.
+۲. بررسی سؤالات چهارگزینه‌ای: برای هر سؤالی که isCorrect برابر false است، به‌طور خلاصه توضیح بده چرا گزینه‌ی صحیح، صحیح است و چرا انتخاب کاربر اشتباه بوده. برای سؤالاتی که درست پاسخ داده شده نیازی به توضیح نیست.
+۳. بررسی پاسخ‌های تشریحی: برای هر آیتمی با type برابر "essay":
+   - غلط‌های املایی (spelling) و گرامری (grammar) موجود در answerText را مشخص کن و نسخه‌ی اصلاح‌شده را نشان بده.
+   - به‌عنوان کار اضافه، یک نسخه‌ی پیشنهادی و سطح بالاتر (more advanced / more native-like) از همان پاسخ بنویس تا کاربر ببیند یک نویسنده‌ی قوی‌تر چطور همان ایده را بیان می‌کند.
+۴. جمع‌بندی نهایی: در پایان، نکات کلیدی برای بهبود را به‌صورت چند بولت کوتاه ارائه بده.
+پاسخت را با زبانی روشن، مشوق و مفید بنویس.`;
+
+  /* =========================================================
+     1. SAMPLE EXAM (bundled, downloadable)
+     ========================================================= */
+  const SAMPLE_EXAM = {
+    meta: {
+      schemaVersion: "1.0",
+      examTitle: "آزمون نمونه - گرامر و واژگان متوسط",
+      description: "یک آزمون نمونه برای تست برنامه شبیه‌ساز آزمون زبان انگلیسی",
+      topics: ["Grammar", "Vocabulary", "Writing"],
+      durationMinutes: 15,
+      totalQuestions: 6
+    },
+    questions: [
+      { id:"q1", type:"multiple_choice", topic:"Grammar", points:1,
+        prompt:"Choose the correct form: 'She ___ to the gym every morning before work.'",
+        options:[{id:"a",text:"go"},{id:"b",text:"goes"},{id:"c",text:"going"},{id:"d",text:"gone"}],
+        correctOptionId:"b" },
+      { id:"q2", type:"multiple_choice", topic:"Grammar", points:1,
+        prompt:"Which sentence is grammatically correct?",
+        options:[
+          {id:"a",text:"If I would have known, I would have come."},
+          {id:"b",text:"If I had known, I would have come."},
+          {id:"c",text:"If I have known, I would come."},
+          {id:"d",text:"If I knew, I would have came."}],
+        correctOptionId:"b" },
+      { id:"q3", type:"multiple_choice", topic:"Vocabulary", points:1,
+        prompt:"The word 'meticulous' most nearly means:",
+        options:[{id:"a",text:"careless"},{id:"b",text:"very careful and precise"},{id:"c",text:"fast"},{id:"d",text:"generous"}],
+        correctOptionId:"b" },
+      { id:"q4", type:"multiple_choice", topic:"Vocabulary", points:1,
+        prompt:"Choose the best synonym for 'reluctant'.",
+        options:[{id:"a",text:"eager"},{id:"b",text:"unwilling"},{id:"c",text:"confident"},{id:"d",text:"curious"}],
+        correctOptionId:"b" },
+      { id:"q5", type:"essay", topic:"Writing", points:5,
+        prompt:"Write a short paragraph (60-100 words) describing a challenge you overcame recently.",
+        guidance:"Expect roughly 60-100 words, coherent structure, correct tense usage." },
+      { id:"q6", type:"essay", topic:"Writing", points:5,
+        prompt:"In your opinion, is it better to learn a language through formal classes or self-study? Explain why in 3-4 sentences.",
+        guidance:"Looking for a clear opinion with at least one supporting reason." }
+    ]
+  };
+
+  document.getElementById('downloadSampleBtn').addEventListener('click', function(){
+    downloadJson(SAMPLE_EXAM, 'sample-exam.json');
+    showToast('نمونه فایل آزمون دانلود شد.');
+  });
+
+  function downloadJson(obj, filename){
+    const blob = new Blob([JSON.stringify(obj, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  /* =========================================================
+     2. EXAM APP STATE
+     ========================================================= */
+  let examData = null;
+  let answers = {};
+  let currentIndex = 0;
+  let timerInterval = null;
+  let remainingSeconds = 0;
+  let startedAt = null;
+  let endedReason = null;
+  let finishedAt = null;
+  let lastResultPayload = null;
+
+  const screenImport = document.getElementById('screen-import');
+  const screenExam = document.getElementById('screen-exam');
+  const screenResults = document.getElementById('screen-results');
+  const stepSubtitle = document.getElementById('stepSubtitle');
+
+  const dropzone = document.getElementById('dropzone');
+  const fileInput = document.getElementById('fileInput');
+  const errBox = document.getElementById('errBox');
+  const previewCard = document.getElementById('previewCard');
+  const startBtn = document.getElementById('startBtn');
+
+  const examTitleMini = document.getElementById('examTitleMini');
+  const examProgressText = document.getElementById('examProgressText');
+  const timerBadge = document.getElementById('timerBadge');
+  const palette = document.getElementById('palette');
+  const qCardHolder = document.getElementById('qCardHolder');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const finishBtn = document.getElementById('finishBtn');
+
+  function showToast(msg){
+    const t = document.createElement('div');
+    t.className = 'toast'; t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(()=> t.remove(), 2600);
+  }
+  function formatTime(totalSeconds){
+    const s = Math.max(0, totalSeconds);
+    return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
+  }
+  function escapeHtml(str){
+    const d = document.createElement('div'); d.textContent = str; return d.innerHTML;
+  }
+  const promptCard = document.getElementById('promptCard');
+  const appCard = document.getElementById('appCard');
+  function switchScreen(el, subtitle){
+    [screenImport, screenExam, screenResults].forEach(s => s.classList.add('hidden'));
+    el.classList.remove('hidden');
+    stepSubtitle.textContent = subtitle;
+    promptCard.classList.toggle('hidden', el === screenExam || el === screenResults);
+    appCard.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  /* ---------- validation ---------- */
+  function validateExam(data){
+    const errors = [];
+    if (typeof data !== 'object' || data === null) return {valid:false, errors:['فایل یک شیء JSON معتبر نیست.']};
+    const meta = data.meta;
+    if (!meta || typeof meta !== 'object'){
+      errors.push('فیلد "meta" وجود ندارد یا معتبر نیست.');
+    } else {
+      if (!meta.examTitle || typeof meta.examTitle !== 'string') errors.push('meta.examTitle باید یک رشته غیرخالی باشد.');
+      if (!Array.isArray(meta.topics)) errors.push('meta.topics باید یک آرایه از رشته‌ها باشد.');
+      if (typeof meta.durationMinutes !== 'number' || meta.durationMinutes <= 0) errors.push('meta.durationMinutes باید یک عدد مثبت باشد.');
+      if (typeof meta.totalQuestions !== 'number' || meta.totalQuestions <= 0) errors.push('meta.totalQuestions باید یک عدد مثبت باشد.');
+    }
+    const questions = data.questions;
+    if (!Array.isArray(questions) || questions.length === 0){
+      errors.push('فیلد "questions" باید آرایه‌ای غیرخالی از سؤالات باشد.');
+    } else {
+      if (meta && typeof meta.totalQuestions === 'number' && meta.totalQuestions !== questions.length){
+        errors.push('meta.totalQuestions (' + meta.totalQuestions + ') با تعداد واقعی سؤالات (' + questions.length + ') برابر نیست.');
+      }
+      const seenIds = new Set();
+      questions.forEach((q, idx) => {
+        const where = 'سؤال شماره ' + (idx+1) + ' (id: ' + (q && q.id ? q.id : '؟') + ')';
+        if (!q || typeof q !== 'object'){ errors.push(where + ': ساختار سؤال نامعتبر است.'); return; }
+        if (!q.id || typeof q.id !== 'string') errors.push(where + ': فیلد id باید رشته غیرخالی باشد.');
+        else if (seenIds.has(q.id)) errors.push(where + ': شناسه id تکراری است.');
+        else seenIds.add(q.id);
+        if (q.type !== 'multiple_choice' && q.type !== 'essay') errors.push(where + ': type باید "multiple_choice" یا "essay" باشد.');
+        if (!q.prompt || typeof q.prompt !== 'string') errors.push(where + ': فیلد prompt باید رشته غیرخالی باشد.');
+        if (q.type === 'multiple_choice'){
+          if (!Array.isArray(q.options) || q.options.length < 2){
+            errors.push(where + ': سؤال چهارگزینه‌ای باید حداقل ۲ گزینه در options داشته باشد.');
+          } else {
+            const optIds = q.options.map(o => o && o.id);
+            q.options.forEach((o, oi) => {
+              if (!o || typeof o.id !== 'string' || typeof o.text !== 'string'){
+                errors.push(where + ': گزینه شماره ' + (oi+1) + ' باید دارای id و text رشته‌ای باشد.');
+              }
+            });
+            if (!q.correctOptionId || !optIds.includes(q.correctOptionId)){
+              errors.push(where + ': correctOptionId باید برابر یکی از id های موجود در options باشد.');
+            }
+          }
+        }
+      });
+    }
+    return {valid: errors.length === 0, errors};
+  }
+
+  /* ---------- import ---------- */
+  function stripCodeFence(text){
+    let t = text.trim();
+    const fenceMatch = t.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
+    if (fenceMatch) t = fenceMatch[1].trim();
+    return t;
+  }
+  function processJsonText(rawText){
+    let data;
+    const cleaned = stripCodeFence(rawText);
+    try { data = JSON.parse(cleaned); }
+    catch(err){ showErrors(['متن وارد‌شده JSON معتبر نیست: ' + err.message]); return; }
+    const result = validateExam(data);
+    if (!result.valid){ showErrors(result.errors); return; }
+    errBox.classList.add('hidden');
+    examData = data;
+    renderPreview(data);
+  }
+  function handleFile(file){
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e){ processJsonText(e.target.result); };
+    reader.readAsText(file, 'utf-8');
+  }
+  function showErrors(errors){
+    previewCard.classList.add('hidden');
+    errBox.classList.remove('hidden');
+    errBox.innerHTML = '<strong>این محتوا با چارچوب مورد نیاز مطابقت ندارد:</strong><ul>' +
+      errors.map(e => '<li>' + escapeHtml(e) + '</li>').join('') + '</ul>';
+  }
+  function renderPreview(data){
+    const mcqCount = data.questions.filter(q => q.type === 'multiple_choice').length;
+    const essayCount = data.questions.filter(q => q.type === 'essay').length;
+    document.getElementById('pvTitle').textContent = data.meta.examTitle;
+    document.getElementById('pvDesc').textContent = data.meta.description || '';
+    document.getElementById('pvDuration').textContent = data.meta.durationMinutes + ' دقیقه';
+    document.getElementById('pvCount').textContent = data.questions.length + ' سؤال';
+    document.getElementById('pvMcq').textContent = mcqCount + ' سؤال';
+    document.getElementById('pvEssay').textContent = essayCount + ' سؤال';
+    const topicsRow = document.getElementById('pvTopics');
+    topicsRow.innerHTML = '';
+    (data.meta.topics || []).forEach(t => {
+      const chip = document.createElement('span'); chip.className = 'chip'; chip.textContent = t;
+      topicsRow.appendChild(chip);
+    });
+    previewCard.classList.remove('hidden');
+  }
+
+  dropzone.addEventListener('click', (e) => { if (e.target.tagName !== 'INPUT') fileInput.click(); });
+  fileInput.addEventListener('change', () => handleFile(fileInput.files[0]));
+  ['dragover','dragenter'].forEach(evt => dropzone.addEventListener(evt, e => { e.preventDefault(); dropzone.classList.add('drag'); }));
+  ['dragleave','drop'].forEach(evt => dropzone.addEventListener(evt, e => { e.preventDefault(); dropzone.classList.remove('drag'); }));
+  dropzone.addEventListener('drop', e => { e.preventDefault(); if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
+  startBtn.addEventListener('click', startExam);
+
+  /* ---- import tab switching ---- */
+  const tabFileBtn = document.getElementById('tabFileBtn');
+  const tabPasteBtn = document.getElementById('tabPasteBtn');
+  const panelFile = document.getElementById('panelFile');
+  const panelPaste = document.getElementById('panelPaste');
+  function switchImportTab(tab){
+    const isFile = tab === 'file';
+    tabFileBtn.classList.toggle('active', isFile);
+    tabPasteBtn.classList.toggle('active', !isFile);
+    panelFile.classList.toggle('hidden', !isFile);
+    panelPaste.classList.toggle('hidden', isFile);
+    errBox.classList.add('hidden');
+  }
+  tabFileBtn.addEventListener('click', () => switchImportTab('file'));
+  tabPasteBtn.addEventListener('click', () => switchImportTab('paste'));
+
+  document.getElementById('pasteImportBtn').addEventListener('click', () => {
+    const raw = document.getElementById('pasteInput').value.trim();
+    if (!raw){ showErrors(['ابتدا متن JSON را در کادر بالا وارد کن.']); return; }
+    processJsonText(raw);
+  });
+
+  /* ---------- exam flow ---------- */
+  function startExam(){
+    answers = {}; currentIndex = 0; endedReason = null; finishedAt = null;
+    remainingSeconds = Math.round(examData.meta.durationMinutes * 60);
+    startedAt = new Date();
+    examTitleMini.textContent = examData.meta.examTitle;
+    buildPalette();
+    renderQuestion();
+    switchScreen(screenExam, 'در حال برگزاری آزمون — تا پایان زمان یا کلیک روی «پایان آزمون» ادامه بده');
+    clearInterval(timerInterval);
+    timerInterval = setInterval(tick, 1000);
+    updateTimerDisplay();
+  }
+  function tick(){
+    remainingSeconds--;
+    updateTimerDisplay();
+    if (remainingSeconds <= 0){ clearInterval(timerInterval); endedReason = 'timeout'; finishExam(); }
+  }
+  function updateTimerDisplay(){
+    timerBadge.textContent = formatTime(remainingSeconds);
+    timerBadge.classList.toggle('low', remainingSeconds <= 60);
+  }
+  function buildPalette(){
+    palette.innerHTML = '';
+    examData.questions.forEach((q, i) => {
+      const btn = document.createElement('button');
+      btn.textContent = i+1;
+      btn.className = q.type === 'essay' ? 'essay-type' : '';
+      btn.id = 'pal-' + i;
+      btn.addEventListener('click', () => { currentIndex = i; renderQuestion(); });
+      palette.appendChild(btn);
+    });
+  }
+  function refreshPalette(){
+    let answeredCount = 0;
+    examData.questions.forEach((q, i) => {
+      const btn = document.getElementById('pal-' + i);
+      btn.classList.toggle('current', i === currentIndex);
+      const hasAnswer = answers[q.id] !== undefined && answers[q.id] !== '';
+      btn.classList.toggle('answered', !!hasAnswer);
+      if (hasAnswer) answeredCount++;
+    });
+    updateProgressBar(answeredCount, examData.questions.length);
+  }
+
+  function updateProgressBar(answeredCount, total){
+    const pct = total ? Math.round((answeredCount/total)*100) : 0;
+    document.getElementById('progressBarInner').style.width = pct + '%';
+    document.getElementById('progressLabel').textContent = toPersianDigits(answeredCount) + ' از ' + toPersianDigits(total) + ' سؤال پاسخ داده شده';
+    document.getElementById('progressPercent').textContent = toPersianDigits(pct) + '٪';
+  }
+
+  function toPersianDigits(n){
+    const fa = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+    return String(n).replace(/[0-9]/g, d => fa[d]);
+  }
+  function renderQuestion(){
+    const q = examData.questions[currentIndex];
+    examProgressText.textContent = 'سؤال ' + (currentIndex+1) + ' از ' + examData.questions.length;
+    let html = '<div class="q-card">';
+    html += '<div class="q-head"><span class="q-tag">' + (q.type === 'multiple_choice' ? 'چهارگزینه‌ای' : 'تشریحی') + ' — سؤال ' + (currentIndex+1) + '</span>';
+    html += '<span class="q-topic-chip">' + escapeHtml(q.topic || '') + '</span></div>';
+    html += '<div class="q-prompt">' + escapeHtml(q.prompt) + '</div>';
+    if (q.type === 'multiple_choice'){
+      q.options.forEach(opt => {
+        const checked = answers[q.id] === opt.id ? 'selected' : '';
+        html += '<label class="option ' + checked + '" data-oid="' + opt.id + '">' +
+          '<span class="letter">' + opt.id.toUpperCase() + '</span><span>' + escapeHtml(opt.text) + '</span></label>';
+      });
+    } else {
+      const val = answers[q.id] || '';
+      html += '<textarea class="essay-input" id="essayInput" placeholder="پاسخ خود را اینجا بنویس...">' + escapeHtml(val) + '</textarea>';
+      html += '<div class="word-count" id="wordCount"></div>';
+    }
+    html += '</div>';
+    qCardHolder.innerHTML = html;
+    if (q.type === 'multiple_choice'){
+      qCardHolder.querySelectorAll('.option').forEach(el => {
+        el.addEventListener('click', () => { answers[q.id] = el.getAttribute('data-oid'); renderQuestion(); refreshPalette(); });
+      });
+    } else {
+      const ta = document.getElementById('essayInput');
+      const wc = document.getElementById('wordCount');
+      function updateWc(){ const words = ta.value.trim().length ? ta.value.trim().split(/\s+/).length : 0; wc.textContent = words + ' واژه'; }
+      updateWc();
+      ta.addEventListener('input', () => { answers[q.id] = ta.value; updateWc(); refreshPalette(); });
+    }
+    refreshPalette();
+    prevBtn.disabled = currentIndex === 0;
+    const isLast = currentIndex === examData.questions.length - 1;
+    nextBtn.classList.toggle('hidden', isLast);
+  }
+  prevBtn.addEventListener('click', () => { if (currentIndex>0){ currentIndex--; renderQuestion(); } });
+  nextBtn.addEventListener('click', () => { if (currentIndex<examData.questions.length-1){ currentIndex++; renderQuestion(); } });
+
+  finishBtn.addEventListener('click', () => {
+    const unanswered = examData.questions.filter(q => answers[q.id] === undefined || answers[q.id] === '').length;
+    const msg = unanswered > 0
+      ? 'هنوز ' + unanswered + ' سؤال بی‌پاسخ مانده است. مطمئنی می‌خواهی آزمون را تمام کنی؟'
+      : 'مطمئنی می‌خواهی آزمون را تمام کنی؟';
+    if (window.confirm(msg)){ clearInterval(timerInterval); endedReason = 'manual'; finishExam(); }
+  });
+
+  /* ---------- finish & grading ---------- */
+  function finishExam(){
+    finishedAt = new Date();
+    const durationUsedSeconds = Math.round((finishedAt - startedAt)/1000);
+    let mcqCorrect = 0, mcqTotal = 0;
+    const answerRecords = examData.questions.map(q => {
+      if (q.type === 'multiple_choice'){
+        mcqTotal++;
+        const selected = answers[q.id] || null;
+        const isCorrect = selected === q.correctOptionId;
+        if (isCorrect) mcqCorrect++;
+        return { id:q.id, type:q.type, topic:q.topic, prompt:q.prompt, options:q.options,
+          correctOptionId:q.correctOptionId, selectedOptionId:selected, isCorrect };
+      }
+      return { id:q.id, type:q.type, topic:q.topic, prompt:q.prompt, answerText: answers[q.id] || '' };
+    });
+    lastResultPayload = {
+      gradingInstructions: GRADING_INSTRUCTIONS,
+      examMeta: examData.meta,
+      startedAt: startedAt.toISOString(),
+      finishedAt: finishedAt.toISOString(),
+      durationUsedSeconds, endedReason,
+      score: { multipleChoice: { correct: mcqCorrect, total: mcqTotal, percentage: mcqTotal ? Math.round((mcqCorrect/mcqTotal)*100) : null } },
+      answers: answerRecords
+    };
+    renderResults(lastResultPayload);
+    switchScreen(screenResults, 'نتیجه آزمون — می‌توانی خروجی را دانلود کنی یا آزمون جدیدی شروع کنی');
+  }
+  function renderResults(payload){
+    document.getElementById('scoreCorrect').textContent = payload.score.multipleChoice.correct;
+    document.getElementById('scoreTotal').textContent = payload.score.multipleChoice.total;
+    document.getElementById('scorePercent').textContent = payload.score.multipleChoice.total
+      ? payload.score.multipleChoice.percentage + '% پاسخ‌های تستی صحیح' : 'این آزمون سؤال تستی نداشت';
+    document.getElementById('finishInfo').textContent =
+      (payload.endedReason === 'timeout' ? 'پایان به دلیل اتمام زمان' : 'پایان دستی توسط کاربر') +
+      ' — مدت صرف‌شده: ' + formatTime(payload.durationUsedSeconds);
+    const list = document.getElementById('reviewList');
+    list.innerHTML = '';
+    payload.answers.forEach((a, i) => {
+      const card = document.createElement('div');
+      if (a.type === 'multiple_choice'){
+        card.className = 'review-card ' + (a.isCorrect ? 'correct-border' : 'wrong-border');
+        let optsHtml = '';
+        a.options.forEach(opt => {
+          let cls = '';
+          if (opt.id === a.correctOptionId) cls = 'is-correct';
+          else if (opt.id === a.selectedOptionId && !a.isCorrect) cls = 'is-wrong';
+          let mark = '';
+          if (opt.id === a.correctOptionId) mark = '✓ پاسخ صحیح';
+          else if (opt.id === a.selectedOptionId) mark = '✗ پاسخ شما';
+          optsHtml += '<div class="review-opt ' + cls + '"><b>' + opt.id.toUpperCase() + '.</b> ' + escapeHtml(opt.text) + '<span class="mark">' + mark + '</span></div>';
+        });
+        card.innerHTML =
+          '<div class="q-head"><span class="q-tag">سؤال ' + (i+1) + ' — چهارگزینه‌ای</span>' +
+          '<span class="badge ' + (a.isCorrect?'ok':'no') + '">' + (a.isCorrect ? 'صحیح' : 'نادرست') + '</span></div>' +
+          '<div class="q-prompt" style="font-size:14.5px;">' + escapeHtml(a.prompt) + '</div>' + optsHtml;
+      } else {
+        card.className = 'review-card essay-border';
+        card.innerHTML =
+          '<div class="q-head"><span class="q-tag">سؤال ' + (i+1) + ' — تشریحی</span>' +
+          '<span class="badge essay">نیاز به تصحیح دستی/هوش مصنوعی</span></div>' +
+          '<div class="q-prompt" style="font-size:14.5px;">' + escapeHtml(a.prompt) + '</div>' +
+          '<div class="essay-answer-box">' + (a.answerText ? escapeHtml(a.answerText) : '<i style="color:var(--muted)">پاسخی وارد نشده</i>') + '</div>';
+      }
+      list.appendChild(card);
+    });
+  }
+
+  document.getElementById('exportBtn').addEventListener('click', () => {
+    if (!lastResultPayload) return;
+    const safeName = (examData.meta.examTitle || 'exam').replace(/[^\w\-آ-ی ]/g,'').trim().replace(/\s+/g,'-');
+    downloadJson(lastResultPayload, (safeName || 'exam') + '-result.json');
+    showToast('فایل نتیجه دانلود شد.');
+  });
+
+  document.getElementById('restartBtn').addEventListener('click', () => {
+    examData = null; answers = {}; lastResultPayload = null;
+    fileInput.value = '';
+    document.getElementById('pasteInput').value = '';
+    switchImportTab('file');
+    previewCard.classList.add('hidden');
+    errBox.classList.add('hidden');
+    switchScreen(screenImport, 'فایل JSON آزمون را ایمپورت کن تا شروع کنیم');
+  });
+
+})();
+</script>
+</body>
+</html>
