@@ -58,7 +58,6 @@
     padding:26px 26px 28px;
     margin-bottom:22px;
   }
-  @media (max-width:600px){ .card{padding:18px 16px 20px;} }
 
   .card-head{ display:flex; align-items:center; gap:10px; margin-bottom:16px; }
   .step-num{
@@ -306,7 +305,176 @@
   .toast{
     position:fixed; bottom:22px; left:50%; transform:translateX(-50%);
     background:var(--navy); color:#f2efe8; padding:10px 20px; border-radius:30px;
-    font-size:13px; box-shadow:var(--shadow); z-index:80;
+    font-size:13px; box-shadow:var(--shadow); z-index:80; max-width:90vw; text-align:center;
+    animation: toastIn .25s ease both, toastOut .25s ease 2.35s forwards;
+  }
+  @keyframes toastIn{ from{opacity:0; transform:translate(-50%,10px);} to{opacity:1; transform:translate(-50%,0);} }
+  @keyframes toastOut{ from{opacity:1;} to{opacity:0;} }
+
+  /* -------- smooth motion system -------- */
+  .collapse{
+    overflow:hidden; max-height:0; opacity:0;
+    transition:max-height .3s ease, opacity .22s ease;
+  }
+  .collapse.open{ opacity:1; }
+  #promptContainer.collapse.open{ max-height:650px; }
+  #vocabPromptContainer.collapse.open{ max-height:650px; }
+  #quickSelectPanel.collapse.open{ max-height:260px; }
+  #deleteMenuPanel.collapse.open{ max-height:320px; }
+
+  @keyframes fadeInUp{ from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
+  .fade-in-up{ animation:fadeInUp .35s ease both; }
+
+  .card{ animation:fadeInUp .4s ease both; }
+  .card:nth-of-type(2){ animation-delay:.05s; }
+  .card:nth-of-type(3){ animation-delay:.1s; }
+
+  .btn{ transition:background-color .15s ease, color .15s ease, transform .12s ease, box-shadow .15s ease, opacity .15s ease; }
+  .btn:hover:not(:disabled){ transform:translateY(-1px); box-shadow:0 6px 14px -8px rgba(30,42,61,.35); }
+  .btn:active:not(:disabled){ transform:translateY(0); box-shadow:none; }
+
+  .btn:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, .main-tab:focus-visible, .import-tab:focus-visible{
+    outline:2px solid var(--brass); outline-offset:2px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
+  }
+
+  /* -------- main tabs -------- */
+  .main-tabs{
+    display:flex; gap:8px; background:#e9e4d6; border-radius:10px; padding:5px; margin-bottom:20px;
+  }
+  .main-tab{
+    flex:1; font-family:'Vazirmatn',sans-serif; font-weight:700; font-size:14px;
+    background:transparent; border:none; border-radius:7px; padding:11px 14px; cursor:pointer;
+    color:#6b6250; transition:.15s;
+  }
+  .main-tab:hover{ color:var(--navy); }
+  .main-tab.active{ background:var(--paper); color:var(--navy); box-shadow:var(--shadow); }
+
+  /* -------- vocabulary -------- */
+  .vocab-toolbar{ display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:10px; margin:18px 0 6px; }
+  .vocab-view-toggle{ display:flex; gap:6px; background:#f2efe4; border-radius:8px; padding:4px; }
+  .vocab-view-btn{
+    font-family:'Vazirmatn',sans-serif; font-weight:700; font-size:12.5px;
+    background:transparent; border:none; border-radius:6px; padding:7px 12px; cursor:pointer; color:#6b6250; transition:.15s;
+  }
+  .vocab-view-btn.active{ background:var(--navy); color:#fff; }
+  .vocab-count{ font-size:12px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+  .flash-hint{ font-size:12px; color:var(--muted); margin-bottom:12px; }
+
+  .vocab-empty{
+    display:none; text-align:center; color:var(--muted); font-size:13.5px;
+    border:1px dashed var(--line); border-radius:8px; padding:24px; background:#fbfaf6;
+  }
+  .vocab-empty.show{ display:block; }
+
+  /* table-like layout: header + rows share the same grid columns and horizontal padding */
+  .vocab-table-header{
+    display:grid; grid-template-columns:36px 1fr 1fr 40px; gap:10px;
+    padding:0 12px 6px; font-size:11px; font-weight:700; color:var(--muted);
+    text-transform:uppercase; letter-spacing:.04em;
+  }
+  .vocab-list{ display:flex; flex-direction:column; gap:6px; margin-bottom:8px; }
+  .vocab-row{
+    display:grid; grid-template-columns:36px 1fr 1fr 40px; align-items:stretch; gap:10px;
+    border:1px solid var(--line); border-radius:8px; padding-inline:12px;
+    background:#fbfaf6; overflow:hidden; transition:box-shadow .15s ease, border-color .15s ease;
+  }
+  .vocab-list .vocab-row:nth-child(even){ background:#f4f1e8; }
+  .vocab-row:hover{ border-color:var(--brass); box-shadow:0 6px 16px -10px rgba(30,42,61,.35); }
+  .vocab-row-check{ display:flex; align-items:center; justify-content:center; }
+  .vocab-row-check input{ width:17px; height:17px; accent-color:var(--brass); cursor:pointer; }
+  .vocab-flash{ display:contents; cursor:pointer; user-select:none; }
+  .vocab-front{ font-weight:800; font-size:14.5px; display:flex; align-items:center; padding:12px 0; }
+  .vocab-front[dir="ltr"]{ font-family:'JetBrains Mono',monospace; }
+  .vocab-back{
+    display:flex; align-items:center; font-size:13px; color:var(--muted);
+    border-inline-start:1px dashed var(--line); padding:12px 0 12px 12px;
+  }
+  .vocab-back .placeholder{ color:#a8a094; font-style:italic; transition:opacity .15s ease; }
+  .vocab-back .revealed-main{ color:var(--text); font-weight:700; }
+  .vocab-back .revealed-notes{ display:block; margin-top:4px; color:var(--muted); font-size:12px; }
+  .vocab-back-content{ animation:fadeInUp .22s ease both; }
+  .vocab-row-del{
+    display:flex; align-items:center; justify-content:center;
+    background:transparent; border:none; color:#b7ac96; cursor:pointer; font-size:15px; transition:.15s;
+  }
+  .vocab-row-del:hover{ color:var(--wrong); transform:scale(1.15); }
+
+  .vocab-selected-info{ font-size:12.5px; color:var(--muted); font-family:'JetBrains Mono',monospace; margin:10px 0 12px; }
+
+  .btn-sm{ padding:6px 12px; font-size:12px; border-radius:6px; }
+
+  .vocab-utility-row{ display:flex; flex-wrap:wrap; gap:14px; margin-bottom:8px; }
+  .quick-select-toggle-link{
+    background:transparent; border:none; color:var(--muted); font-family:'Vazirmatn',sans-serif;
+    font-size:12.5px; font-weight:600; cursor:pointer; padding:4px 2px; transition:.15s;
+  }
+  .quick-select-toggle-link:hover{ color:var(--navy); }
+  .quick-select-panel .collapse-inner, #deleteMenuPanel .collapse-inner{
+    margin-top:8px; margin-bottom:10px; border:1px solid var(--line); border-radius:8px; background:#fbfaf6;
+    padding:10px 12px 12px;
+  }
+  .quick-select-row{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
+  .quick-select-row .btn{ flex:0 0 auto; }
+  .quick-select-n-row{ display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+  .quick-select-n-row label{ font-size:11.5px; font-weight:700; color:#454a54; white-space:nowrap; }
+  .quick-select-n-row input{
+    width:64px; font-family:'JetBrains Mono',monospace; font-size:12.5px; padding:5px 8px;
+    border:1px solid var(--line); border-radius:6px; background:#fff; color:var(--text);
+  }
+  .quick-select-n-row input:focus{ outline:none; border-color:var(--brass); }
+  .quick-select-note{ font-size:11px; color:var(--muted); margin:2px 0 0; }
+
+  .delete-menu-divider{ height:1px; background:var(--line); margin:10px 0; }
+  .danger-zone{
+    margin-top:0; border:1px dashed var(--wrong); border-radius:8px; padding:12px 14px; background:var(--wrong-bg);
+  }
+  .danger-zone-warning{ font-size:12px; color:#7a2b23; line-height:1.75; margin-bottom:10px; }
+  .danger-zone-confirm{
+    display:flex; align-items:flex-start; gap:7px; font-size:12px; color:#7a2b23; font-weight:700;
+    margin-bottom:10px; cursor:pointer;
+  }
+  .danger-zone-confirm input{ width:15px; height:15px; margin-top:2px; accent-color:var(--wrong); cursor:pointer; flex:none; }
+
+  /* printable vocab sheet, hidden on screen, shown only when printing */
+  .print-only{ display:none; }
+  @media print{
+    body *{ visibility:hidden; }
+    .print-only, .print-only *{ visibility:visible; }
+    .print-only{ display:block; position:absolute; top:0; right:0; left:0; padding:24px; }
+    .print-only table{ width:100%; border-collapse:collapse; }
+    .print-only th, .print-only td{ border:1px solid #999; padding:8px 10px; font-size:13px; text-align:right; }
+    .print-only th{ background:#eee; }
+  }
+
+  /* -------- responsive overrides (kept last so they win the cascade on narrow screens) -------- */
+  @media (max-width:600px){
+    .card{padding:18px 16px 20px;}
+    .topbar{padding:20px 14px;}
+    .topbar h1{font-size:20px;}
+    .topbar p{font-size:12.5px;}
+    .main-tab{font-size:13px; padding:10px 8px;}
+    .card-head h2{font-size:15.5px;}
+    .prompt-box textarea{height:200px; font-size:12px;}
+    .btn-row{flex-direction:column;}
+    .btn-row .btn{width:100%;}
+    .vocab-toolbar{flex-direction:column; align-items:stretch;}
+    .vocab-view-toggle{width:100%;}
+    .vocab-view-btn{flex:1;}
+    .q-prompt{font-size:15px;}
+    .score-big{font-size:24px;}
+  }
+  @media (max-width:480px){
+    .vocab-table-header, .vocab-row{ grid-template-columns:26px 1fr 1fr 32px !important; gap:6px !important; padding-inline:10px !important; }
+    .vocab-front{ font-size:13px !important; padding:10px 0 !important; }
+    .vocab-back{ font-size:12px !important; padding:10px 0 10px 8px !important; }
+    .vocab-row-del{ font-size:13px !important; }
+    .vocab-table-header{ font-size:10px !important; padding:0 10px 5px !important; }
+    .exam-topbar{flex-direction:column; align-items:flex-start;}
+    .timer-badge{align-self:stretch; text-align:center;}
   }
 </style>
 </head>
@@ -320,6 +488,14 @@
 
 <div class="wrap">
 
+  <div class="main-tabs" id="mainTabs">
+    <button class="main-tab active" id="mainTabExamBtn" type="button">📝 آزمون عمومی</button>
+    <button class="main-tab" id="mainTabVocabBtn" type="button">📚 دفترچه واژگان</button>
+  </div>
+
+  <div id="promptBuilderArea">
+
+  <div id="examTabContent">
   <!-- ============ CARD 1: PROMPT ============ -->
   <div class="card" id="promptCard">
     <div class="card-head">
@@ -393,7 +569,8 @@
       <span id="toggleIcon">👁</span> <span id="toggleLabel">نمایش پرامپت</span>
     </button>
 
-    <div id="promptContainer" class="hidden">
+    <div id="promptContainer" class="collapse">
+      <div class="collapse-inner">
       <div class="prompt-box" id="promptBox">
         <div class="edit-warning" id="editWarning">⚠️ شما در حال ویرایش پرامپت هستید — تغییر ساختار توضیح‌داده‌شده ممکن است باعث شود فایل JSON تولیدی توسط هوش مصنوعی با این برنامه سازگار نباشد.</div>
         <textarea id="promptText" readonly spellcheck="false"></textarea>
@@ -406,15 +583,189 @@
       </div>
     </div>
       <div class="prompt-footer-actions" id="promptFooterActions">
-        <button class="btn btn-outline-danger" id="resetPromptBtn">↺ بازگشت به پرامپت پیش‌فرض</button>
-        <button class="btn btn-ghost" id="downloadCustomPromptBtn">⬇ دانلود پرامپت شخصی‌سازی‌شده</button>
+        <button class="btn btn-outline-danger btn-sm" id="resetPromptBtn">↺ بازگشت به پرامپت پیش‌فرض</button>
+        <button class="btn btn-ghost btn-sm" id="downloadCustomPromptBtn">⬇ دانلود پرامپت شخصی‌سازی‌شده</button>
+      </div>
       </div>
     </div>
 
+
     <div class="btn-row">
-      <button class="btn btn-ghost" id="downloadSampleBtn">⬇ دانلود یک نمونه فایل آزمون آماده</button>
+      <button class="btn btn-ghost btn-sm" id="downloadSampleBtn">⬇ دانلود یک نمونه فایل آزمون آماده</button>
     </div>
   </div>
+  </div> <!-- /examTabContent -->
+
+  <div id="vocabTabContent" class="hidden">
+
+    <!-- ============ VOCAB CARD 1: WORD BANK ============ -->
+    <div class="card">
+      <div class="card-head">
+        <div class="step-num">۱</div>
+        <div>
+          <h2>دفترچه واژگان من</h2>
+          <div class="sub">کلمات جدیدی که یاد می‌گیری را همین‌جا ثبت کن، به‌جای دفترچه‌ی کاغذی</div>
+        </div>
+      </div>
+
+      <div class="exam-form">
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="vEn">کلمه (انگلیسی)</label>
+            <input type="text" id="vEn" placeholder="مثلاً: reluctant">
+          </div>
+          <div class="form-field">
+            <label for="vFa">معنی (فارسی)</label>
+            <input type="text" id="vFa" placeholder="مثلاً: بی‌میل، مردد">
+          </div>
+        </div>
+        <div class="form-field form-field-full">
+          <label for="vNotes">توضیحات اضافی (اختیاری)</label>
+          <textarea id="vNotes" rows="2" placeholder="مثلاً جمله‌سازی: He was reluctant to leave home."></textarea>
+        </div>
+        <div id="vocabErrBox" class="errbox hidden"></div>
+        <button class="btn btn-primary btn-block" id="addWordBtn">➕ افزودن به دفترچه</button>
+      </div>
+
+      <div class="vocab-toolbar">
+        <div class="vocab-view-toggle" id="vocabViewToggle">
+          <button type="button" class="vocab-view-btn active" data-mode="en">نمایش کلمات انگلیسی</button>
+          <button type="button" class="vocab-view-btn" data-mode="fa">نمایش کلمات فارسی</button>
+        </div>
+        <div class="vocab-count" id="vocabCount">۰ کلمه ثبت‌شده</div>
+      </div>
+
+      <div class="vocab-utility-row">
+        <button class="quick-select-toggle-link" id="quickSelectToggleBtn" type="button">🎯 انتخاب سریع برای آزمون ▾</button>
+        <button class="quick-select-toggle-link" id="deleteMenuToggleBtn" type="button">🗑 مدیریت حذف کلمات ▾</button>
+      </div>
+
+      <div id="quickSelectPanel" class="quick-select-panel collapse">
+        <div class="collapse-inner">
+        <div class="quick-select-row">
+          <button class="btn btn-ghost btn-sm" id="selectAllBtn" type="button">✅ همه</button>
+          <button class="btn btn-ghost btn-sm" id="deselectAllBtn" type="button">◻️ هیچ‌کدام</button>
+        </div>
+        <div class="quick-select-n-row">
+          <label for="quickSelectN">تعداد (N):</label>
+          <input type="number" id="quickSelectN" min="1" value="5">
+        </div>
+        <div class="quick-select-row">
+          <button class="btn btn-ghost btn-sm" id="selectFirstNBtn" type="button">N تای اول</button>
+          <button class="btn btn-ghost btn-sm" id="selectLastNBtn" type="button">N تای آخر</button>
+          <button class="btn btn-ghost btn-sm" id="selectRandomNBtn" type="button">N تای شانسی</button>
+        </div>
+        <p class="quick-select-note">هرکدام از این گزینه‌ها انتخاب فعلی را پاک کرده و جایگزین می‌کند.</p>
+        </div>
+      </div>
+
+      <div id="deleteMenuPanel" class="collapse">
+        <div class="collapse-inner">
+        <div class="delete-menu">
+          <button class="btn btn-ghost btn-sm btn-block" id="deleteSelectedBtn" type="button">🗑 حذف کلمات انتخاب‌شده (<span id="deleteSelectedCount">۰</span>)</button>
+          <div class="delete-menu-divider"></div>
+          <div class="danger-zone">
+            <div class="danger-zone-warning">⚠️ این عملیات همه‌ی <b id="deleteAllCount">۰</b> کلمه‌ی ثبت‌شده در دفترچه را برای همیشه حذف می‌کند و غیرقابل بازگشت است (مگر اینکه قبلاً از آن بک‌آپ گرفته باشی).</div>
+            <label class="danger-zone-confirm">
+              <input type="checkbox" id="confirmDeleteAllCheckbox">
+              متوجه‌ام و می‌خواهم همه‌ی کلمات دفترچه حذف شوند.
+            </label>
+            <button class="btn btn-danger btn-sm btn-block" id="deleteAllWordsBtn" disabled>🗑 حذف همه‌ی کلمات دفترچه</button>
+          </div>
+        </div>
+        </div>
+      </div>
+
+      <div class="flash-hint">💡 روی کارت هر کلمه کلیک کن تا معنی/توضیح (یا معادل انگلیسی) نمایش داده شود؛ با کلیک دوباره پنهان می‌شود.</div>
+
+      <div class="vocab-table-header">
+        <div class="vth-check"></div>
+        <div class="vth-front">کلمه</div>
+        <div class="vth-back">معنی / توضیح</div>
+        <div class="vth-del"></div>
+      </div>
+      <div id="vocabList" class="vocab-list"></div>
+      <div id="vocabEmptyState" class="vocab-empty">هنوز کلمه‌ای ثبت نکرده‌ای. اولین کلمه‌ات را از فرم بالا اضافه کن.</div>
+
+      <div class="btn-row">
+        <button class="btn btn-ghost btn-sm" id="downloadVocabJsonBtn">⬇ بک‌آپ JSON</button>
+        <button class="btn btn-ghost btn-sm" id="downloadVocabWordBtn">⬇ Word</button>
+        <button class="btn btn-ghost btn-sm" id="downloadVocabPdfBtn">🖨 PDF</button>
+        <label class="btn btn-ghost btn-sm" for="vocabImportInput" style="cursor:pointer;">📂 بارگذاری بک‌آپ
+          <input type="file" id="vocabImportInput" accept="application/json,.json" style="display:none;">
+        </label>
+      </div>
+      <p class="export-note">چون این برنامه به هیچ سروری وصل نیست، برای اطمینان از حفظ لیستت، هر از گاهی از «بک‌آپ JSON» استفاده کن.</p>
+    </div>
+
+
+    <!-- ============ VOCAB CARD 2: BUILD VOCAB EXAM PROMPT ============ -->
+    <div class="card">
+      <div class="card-head">
+        <div class="step-num">۲</div>
+        <div>
+          <h2>ساخت پرامپت آزمون از واژگان انتخاب‌شده</h2>
+          <div class="sub">از لیست بالا، کلماتی را که می‌خواهی در آزمون بیایند تیک بزن</div>
+        </div>
+      </div>
+
+      <div class="exam-form">
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="vMcqCount">تعداد سؤالات چهارگزینه‌ای</label>
+            <input type="number" id="vMcqCount" min="0" value="4">
+          </div>
+          <div class="form-field">
+            <label for="vEssayCount">تعداد سؤالات تشریحی</label>
+            <input type="number" id="vEssayCount" min="0" value="2">
+          </div>
+          <div class="form-field">
+            <label for="vDuration">مدت زمان آزمون (دقیقه)</label>
+            <input type="number" id="vDuration" min="1" value="15">
+          </div>
+          <div class="form-field">
+            <label for="vLanguage">زبان صورت سؤالات</label>
+            <select id="vLanguage">
+              <option value="انگلیسی">انگلیسی</option>
+              <option value="فارسی">فارسی</option>
+              <option value="ترکیبی (دو زبانه)">ترکیبی (دو زبانه)</option>
+            </select>
+          </div>
+        </div>
+        <div id="vocabPromptErrBox" class="errbox hidden"></div>
+        <div class="vocab-selected-info" id="vocabSelectedInfo">۰ کلمه از ۰ کلمه برای آزمون انتخاب شده</div>
+        <button class="btn btn-primary btn-block" id="buildVocabPromptBtn">🧩 ساخت پرامپت آزمون واژگان</button>
+      </div>
+
+      <button class="prompt-toggle-btn" id="toggleVocabPromptBtn">
+        <span id="toggleVocabIcon">👁</span> <span id="toggleVocabLabel">نمایش پرامپت</span>
+      </button>
+
+      <div id="vocabPromptContainer" class="collapse">
+        <div class="collapse-inner">
+        <div class="prompt-box" id="vocabPromptBox">
+          <div class="edit-warning" id="vocabEditWarning">⚠️ شما در حال ویرایش پرامپت هستید — تغییر ساختار توضیح‌داده‌شده ممکن است باعث شود فایل JSON تولیدی توسط هوش مصنوعی با این برنامه سازگار نباشد.</div>
+          <textarea id="vocabPromptText" readonly spellcheck="false"></textarea>
+          <div class="prompt-toolbar">
+            <span>آماده برای کپی و ارسال به هوش مصنوعی</span>
+            <div class="prompt-actions">
+              <button class="edit-btn" id="editVocabPromptBtn">✏️ ویرایش پرامپت</button>
+              <button class="copy-btn" id="copyVocabPromptBtn">📋 کپی پرامپت</button>
+            </div>
+          </div>
+        </div>
+        <div class="prompt-footer-actions" id="vocabPromptFooterActions">
+          <button class="btn btn-outline-danger btn-sm" id="resetVocabPromptBtn">↺ بازگشت به پرامپت پیش‌فرض</button>
+          <button class="btn btn-ghost btn-sm" id="downloadCustomVocabPromptBtn">⬇ دانلود پرامپت شخصی‌سازی‌شده</button>
+        </div>
+        </div>
+      </div>
+    </div>
+
+
+  </div> <!-- /vocabTabContent -->
+
+  </div> <!-- /promptBuilderArea -->
 
   <!-- ============ CARD 2: APP ============ -->
   <div class="card" id="appCard">
@@ -515,6 +866,8 @@
   </div>
 
 </div>
+
+<div class="print-only" id="printOnlyVocab"></div>
 
 <script>
 (function(){
@@ -636,12 +989,12 @@ ${SCHEMA_AND_RULES}`;
   const toggleIcon = document.getElementById('toggleIcon');
   const toggleLabel = document.getElementById('toggleLabel');
   function setPromptVisible(visible){
-    promptContainer.classList.toggle('hidden', !visible);
+    promptContainer.classList.toggle('open', visible);
     togglePromptBtn.classList.toggle('expanded', visible);
     toggleIcon.textContent = visible ? '🙈' : '👁';
     toggleLabel.textContent = visible ? 'مخفی کردن پرامپت' : 'نمایش پرامپت';
   }
-  togglePromptBtn.addEventListener('click', () => setPromptVisible(promptContainer.classList.contains('hidden')));
+  togglePromptBtn.addEventListener('click', () => setPromptVisible(!promptContainer.classList.contains('open')));
 
   document.getElementById('buildPromptBtn').addEventListener('click', function(){
     const topics = document.getElementById('fTopics').value.trim();
@@ -822,6 +1175,502 @@ ${SCHEMA_AND_RULES}`;
   }
 
   /* =========================================================
+     MAIN TABS (آزمون عمومی vs دفترچه واژگان)
+     ========================================================= */
+  const mainTabExamBtn = document.getElementById('mainTabExamBtn');
+  const mainTabVocabBtn = document.getElementById('mainTabVocabBtn');
+  const examTabContent = document.getElementById('examTabContent');
+  const vocabTabContent = document.getElementById('vocabTabContent');
+  function switchMainTab(tab){
+    const isExam = tab === 'exam';
+    mainTabExamBtn.classList.toggle('active', isExam);
+    mainTabVocabBtn.classList.toggle('active', !isExam);
+    examTabContent.classList.toggle('hidden', !isExam);
+    vocabTabContent.classList.toggle('hidden', isExam);
+    animateIn(isExam ? examTabContent : vocabTabContent);
+  }
+  mainTabExamBtn.addEventListener('click', () => switchMainTab('exam'));
+  mainTabVocabBtn.addEventListener('click', () => switchMainTab('vocab'));
+
+  /* =========================================================
+     VOCABULARY BANK
+     ========================================================= */
+  let vocabWords = []; // { id, en, fa, notes, selected }
+  let vocabViewMode = 'en'; // 'en' | 'fa'
+  const VOCAB_STORAGE_KEY = 'vocab-words-v1';
+
+  function genWordId(){ return 'w' + Date.now() + Math.random().toString(36).slice(2,7); }
+
+  /* Storage adapter: prefer Claude's artifact storage when present (e.g. inside Claude.ai),
+     fall back to the browser's own localStorage when this file is opened standalone
+     (double-clicked, or hosted on a normal website) — window.storage simply doesn't exist there. */
+  const VocabStorage = {
+    async get(key){
+      if (window.storage){
+        try {
+          const result = await window.storage.get(key, false);
+          return result ? result.value : null;
+        } catch(err){ return null; }
+      }
+      try { return window.localStorage.getItem(key); }
+      catch(err){ return null; }
+    },
+    async set(key, value){
+      if (window.storage){
+        try { await window.storage.set(key, value, false); return true; }
+        catch(err){ console.error('ذخیره‌ی خودکار (Claude storage) ناموفق بود:', err); return false; }
+      }
+      try { window.localStorage.setItem(key, value); return true; }
+      catch(err){ console.error('ذخیره‌ی خودکار (localStorage) ناموفق بود:', err); return false; }
+    }
+  };
+
+  function saveVocabToStorage(){
+    const payload = JSON.stringify(vocabWords.map(w => ({ id:w.id, en:w.en, fa:w.fa, notes:w.notes, selected:w.selected })));
+    VocabStorage.set(VOCAB_STORAGE_KEY, payload);
+  }
+
+  async function loadVocabFromStorage(){
+    const emptyEl = document.getElementById('vocabEmptyState');
+    const originalEmptyText = emptyEl.textContent;
+    emptyEl.textContent = '⏳ در حال بارگذاری دفترچه واژگان...';
+    emptyEl.classList.add('show');
+    try {
+      const value = await VocabStorage.get(VOCAB_STORAGE_KEY);
+      if (value){
+        const parsed = JSON.parse(value);
+        if (Array.isArray(parsed)){
+          vocabWords = parsed
+            .filter(w => w && w.en && w.fa)
+            .map(w => ({ id: w.id || genWordId(), en: String(w.en), fa: String(w.fa), notes: String(w.notes || ''), selected: !!w.selected }));
+        }
+      }
+    } catch(err){
+      /* no saved data yet, or it was unreadable — start with an empty list */
+    }
+    emptyEl.textContent = originalEmptyText;
+    renderVocabList();
+  }
+
+  document.getElementById('addWordBtn').addEventListener('click', () => {
+    const en = document.getElementById('vEn').value.trim();
+    const fa = document.getElementById('vFa').value.trim();
+    const notes = document.getElementById('vNotes').value.trim();
+    const errBoxV = document.getElementById('vocabErrBox');
+    const errors = [];
+    if (!en) errors.push('کلمه‌ی انگلیسی را وارد کن.');
+    if (!fa) errors.push('معنی فارسی کلمه را وارد کن.');
+    if (errors.length){
+      errBoxV.classList.remove('hidden');
+      errBoxV.innerHTML = '<strong>لطفاً این موارد را تکمیل کن:</strong><ul>' + errors.map(e => '<li>' + escapeHtml(e) + '</li>').join('') + '</ul>';
+      return;
+    }
+    errBoxV.classList.add('hidden');
+    vocabWords.push({ id: genWordId(), en, fa, notes, selected:false });
+    document.getElementById('vEn').value = '';
+    document.getElementById('vFa').value = '';
+    document.getElementById('vNotes').value = '';
+    document.getElementById('vEn').focus();
+    renderVocabList();
+    showToast('کلمه به دفترچه اضافه شد.');
+  });
+
+  document.querySelectorAll('.vocab-view-btn').forEach(btn => {
+    btn.addEventListener('click', function(){
+      vocabViewMode = this.getAttribute('data-mode');
+      document.querySelectorAll('.vocab-view-btn').forEach(b => b.classList.toggle('active', b === this));
+      renderVocabList();
+    });
+  });
+
+  function renderVocabList(){
+    const listEl = document.getElementById('vocabList');
+    const emptyEl = document.getElementById('vocabEmptyState');
+    listEl.innerHTML = '';
+    emptyEl.classList.toggle('show', vocabWords.length === 0);
+
+    vocabWords.forEach(w => {
+      const row = document.createElement('div');
+      row.className = 'vocab-row';
+      const front = vocabViewMode === 'en' ? w.en : w.fa;
+      const frontDir = vocabViewMode === 'en' ? 'ltr' : 'rtl';
+      const revealHint = vocabViewMode === 'en' ? 'معنی و توضیح' : 'معادل انگلیسی';
+
+      row.innerHTML =
+        '<div class="vocab-row-check"><input type="checkbox" ' + (w.selected ? 'checked' : '') + '></div>' +
+        '<div class="vocab-flash">' +
+          '<div class="vocab-front" dir="' + frontDir + '">' + escapeHtml(front) + '</div>' +
+          '<div class="vocab-back" data-revealed="false"><span class="vocab-back-content placeholder">👁 برای دیدن ' + revealHint + ' کلیک کن</span></div>' +
+        '</div>' +
+        '<button class="vocab-row-del" type="button" title="حذف کلمه">🗑</button>';
+
+      const checkbox = row.querySelector('.vocab-row-check input');
+      checkbox.addEventListener('change', () => { w.selected = checkbox.checked; updateVocabSelectedInfo(); });
+
+      const flashEl = row.querySelector('.vocab-flash');
+      const backEl = row.querySelector('.vocab-back');
+      flashEl.addEventListener('click', (e) => {
+        if (e.target === checkbox) return;
+        const revealed = backEl.getAttribute('data-revealed') === 'true';
+        if (revealed){
+          backEl.setAttribute('data-revealed', 'false');
+          backEl.innerHTML = '<span class="vocab-back-content placeholder">👁 برای دیدن ' + revealHint + ' کلیک کن</span>';
+        } else {
+          backEl.setAttribute('data-revealed', 'true');
+          const mainText = vocabViewMode === 'en' ? w.fa : w.en;
+          const mainDir = vocabViewMode === 'en' ? 'rtl' : 'ltr';
+          let html = '<span class="vocab-back-content"><span class="revealed-main" dir="' + mainDir + '">' + escapeHtml(mainText) + '</span>';
+          if (w.notes) html += '<span class="revealed-notes">' + escapeHtml(w.notes) + '</span>';
+          html += '</span>';
+          backEl.innerHTML = html;
+        }
+      });
+
+      row.querySelector('.vocab-row-del').addEventListener('click', () => {
+        if (!window.confirm('این کلمه («' + w.en + '») از دفترچه حذف شود؟')) return;
+        vocabWords = vocabWords.filter(x => x.id !== w.id);
+        renderVocabList();
+      });
+
+      row.classList.add('fade-in-up');
+      listEl.appendChild(row);
+    });
+
+    document.getElementById('vocabCount').textContent = toPersianDigits(vocabWords.length) + ' کلمه ثبت‌شده';
+    updateVocabSelectedInfo();
+
+    document.getElementById('deleteAllCount').textContent = toPersianDigits(vocabWords.length);
+    const confirmBox = document.getElementById('confirmDeleteAllCheckbox');
+    const deleteBtn = document.getElementById('deleteAllWordsBtn');
+    if (vocabWords.length === 0){
+      confirmBox.checked = false;
+      confirmBox.disabled = true;
+      deleteBtn.disabled = true;
+    } else {
+      confirmBox.disabled = false;
+      deleteBtn.disabled = !confirmBox.checked;
+    }
+
+    saveVocabToStorage();
+  }
+
+  function updateVocabSelectedInfo(){
+    const selectedCount = vocabWords.filter(w => w.selected).length;
+    document.getElementById('vocabSelectedInfo').textContent =
+      toPersianDigits(selectedCount) + ' کلمه از ' + toPersianDigits(vocabWords.length) + ' کلمه برای آزمون انتخاب شده';
+    document.getElementById('deleteSelectedCount').textContent = toPersianDigits(selectedCount);
+    document.getElementById('deleteSelectedBtn').disabled = selectedCount === 0;
+  }
+
+  /* ---- quick-select dropdown ---- */
+  document.getElementById('quickSelectToggleBtn').addEventListener('click', () => {
+    document.getElementById('quickSelectPanel').classList.toggle('open');
+  });
+
+  /* ---- delete menu (tucked away, but reachable right at the top of the list) ---- */
+  document.getElementById('deleteMenuToggleBtn').addEventListener('click', () => {
+    document.getElementById('deleteMenuPanel').classList.toggle('open');
+  });
+
+  document.getElementById('deleteSelectedBtn').addEventListener('click', () => {
+    const selected = vocabWords.filter(w => w.selected);
+    if (!selected.length) return;
+    if (!window.confirm('حذف ' + selected.length + ' کلمه‌ی انتخاب‌شده؟ این کار قابل بازگشت نیست.')) return;
+    vocabWords = vocabWords.filter(w => !w.selected);
+    renderVocabList();
+    showToast('کلمات انتخاب‌شده حذف شدند.');
+  });
+
+  function getQuickSelectN(){
+    const n = parseInt(document.getElementById('quickSelectN').value, 10);
+    if (isNaN(n) || n < 1){ showToast('لطفاً یک عدد معتبر برای N وارد کن.'); return null; }
+    return n;
+  }
+
+  document.getElementById('selectAllBtn').addEventListener('click', () => {
+    if (!vocabWords.length){ showToast('دفترچه‌ی واژگان خالی است.'); return; }
+    vocabWords.forEach(w => w.selected = true);
+    renderVocabList();
+    showToast('همه‌ی کلمات انتخاب شدند.');
+  });
+
+  document.getElementById('deselectAllBtn').addEventListener('click', () => {
+    if (!vocabWords.length){ showToast('دفترچه‌ی واژگان خالی است.'); return; }
+    vocabWords.forEach(w => w.selected = false);
+    renderVocabList();
+    showToast('انتخاب همه‌ی کلمات لغو شد.');
+  });
+
+  document.getElementById('selectFirstNBtn').addEventListener('click', () => {
+    if (!vocabWords.length){ showToast('دفترچه‌ی واژگان خالی است.'); return; }
+    const n = getQuickSelectN(); if (n === null) return;
+    vocabWords.forEach(w => w.selected = false);
+    vocabWords.slice(0, n).forEach(w => w.selected = true);
+    renderVocabList();
+    showToast(toPersianDigits(Math.min(n, vocabWords.length)) + ' کلمه از ابتدای لیست انتخاب شد.');
+  });
+
+  document.getElementById('selectLastNBtn').addEventListener('click', () => {
+    if (!vocabWords.length){ showToast('دفترچه‌ی واژگان خالی است.'); return; }
+    const n = getQuickSelectN(); if (n === null) return;
+    vocabWords.forEach(w => w.selected = false);
+    vocabWords.slice(-n).forEach(w => w.selected = true);
+    renderVocabList();
+    showToast(toPersianDigits(Math.min(n, vocabWords.length)) + ' کلمه از انتهای لیست انتخاب شد.');
+  });
+
+  document.getElementById('selectRandomNBtn').addEventListener('click', () => {
+    if (!vocabWords.length){ showToast('دفترچه‌ی واژگان خالی است.'); return; }
+    const n = getQuickSelectN(); if (n === null) return;
+    vocabWords.forEach(w => w.selected = false);
+    const indices = vocabWords.map((_, i) => i);
+    for (let i = indices.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      const tmp = indices[i]; indices[i] = indices[j]; indices[j] = tmp;
+    }
+    indices.slice(0, n).forEach(idx => { vocabWords[idx].selected = true; });
+    renderVocabList();
+    showToast(toPersianDigits(Math.min(n, vocabWords.length)) + ' کلمه به‌صورت شانسی انتخاب شد.');
+  });
+
+  /* ---- danger zone: delete all words ---- */
+  document.getElementById('confirmDeleteAllCheckbox').addEventListener('change', function(){
+    document.getElementById('deleteAllWordsBtn').disabled = !this.checked;
+  });
+  document.getElementById('deleteAllWordsBtn').addEventListener('click', () => {
+    const confirmBox = document.getElementById('confirmDeleteAllCheckbox');
+    if (!confirmBox.checked) return;
+    const count = vocabWords.length;
+    if (!window.confirm('آخرین هشدار: با این کار همه‌ی ' + count + ' کلمه‌ی ثبت‌شده در دفترچه‌ی واژگان برای همیشه حذف می‌شود و قابل بازگشت نیست (مگر با بک‌آپی که قبلاً گرفته‌ای). ادامه می‌دهی؟')) return;
+    vocabWords = [];
+    confirmBox.checked = false;
+    renderVocabList();
+    showToast('همه‌ی کلمات دفترچه حذف شدند.');
+  });
+
+  loadVocabFromStorage();
+
+  /* ---- vocab backup: download / import JSON ---- */
+  document.getElementById('downloadVocabJsonBtn').addEventListener('click', () => {
+    if (!vocabWords.length){ showToast('دفترچه‌ی واژگان خالی است.'); return; }
+    const backup = { schemaVersion: '1.0', words: vocabWords.map(w => ({ en: w.en, fa: w.fa, notes: w.notes || '' })) };
+    downloadJson(backup, 'vocabulary-backup.json');
+    showToast('بک‌آپ دفترچه واژگان دانلود شد.');
+  });
+
+  document.getElementById('vocabImportInput').addEventListener('change', function(){
+    const file = this.files[0];
+    if (!file) return;
+    const input = this;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      let data;
+      try { data = JSON.parse(e.target.result); }
+      catch(err){ showToast('فایل انتخابی JSON معتبر نیست.'); input.value=''; return; }
+      if (!data || !Array.isArray(data.words)){ showToast('ساختار فایل بک‌آپ واژگان معتبر نیست.'); input.value=''; return; }
+      const proceed = vocabWords.length === 0 || window.confirm('بارگذاری این فایل، لیست فعلی واژگان را با محتوای فایل جایگزین می‌کند. ادامه می‌دهی؟');
+      if (!proceed){ input.value=''; return; }
+      vocabWords = data.words.filter(w => w && w.en && w.fa).map(w => ({ id: genWordId(), en: String(w.en), fa: String(w.fa), notes: String(w.notes || ''), selected:false }));
+      renderVocabList();
+      showToast('لیست واژگان بارگذاری شد.');
+      input.value = '';
+    };
+    reader.readAsText(file, 'utf-8');
+  });
+
+  /* ---- vocab: download Word (.doc) ---- */
+  document.getElementById('downloadVocabWordBtn').addEventListener('click', () => {
+    if (!vocabWords.length){ showToast('دفترچه‌ی واژگان خالی است.'); return; }
+    const rows = vocabWords.map((w,i) =>
+      '<tr>' +
+        '<td style="padding:6px;border:1px solid #999;">' + toPersianDigits(i+1) + '</td>' +
+        '<td style="padding:6px;border:1px solid #999;direction:ltr;text-align:left;">' + escapeHtml(w.en) + '</td>' +
+        '<td style="padding:6px;border:1px solid #999;">' + escapeHtml(w.fa) + '</td>' +
+        '<td style="padding:6px;border:1px solid #999;">' + escapeHtml(w.notes || '') + '</td>' +
+      '</tr>'
+    ).join('');
+    const bodyHtml =
+      '<h2 style="font-family:Tahoma,Arial;">دفترچه واژگان من</h2>' +
+      '<table style="border-collapse:collapse;width:100%;font-family:Tahoma,Arial;font-size:13px;" dir="rtl">' +
+        '<tr>' +
+          '<th style="padding:6px;border:1px solid #999;background:#eee;">#</th>' +
+          '<th style="padding:6px;border:1px solid #999;background:#eee;">English</th>' +
+          '<th style="padding:6px;border:1px solid #999;background:#eee;">معنی فارسی</th>' +
+          '<th style="padding:6px;border:1px solid #999;background:#eee;">توضیحات</th>' +
+        '</tr>' + rows +
+      '</table>';
+    const preHtml = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>vocabulary</title></head><body dir='rtl'>";
+    const postHtml = "</body></html>";
+    const blob = new Blob(['\ufeff', preHtml + bodyHtml + postHtml], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'vocabulary-list.doc';
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+    showToast('فایل Word دانلود شد.');
+  });
+
+  /* ---- vocab: PDF via browser print ---- */
+  document.getElementById('downloadVocabPdfBtn').addEventListener('click', () => {
+    if (!vocabWords.length){ showToast('دفترچه‌ی واژگان خالی است.'); return; }
+    const printEl = document.getElementById('printOnlyVocab');
+    const rows = vocabWords.map((w,i) =>
+      '<tr>' +
+        '<td>' + toPersianDigits(i+1) + '</td>' +
+        '<td dir="ltr" style="text-align:left;">' + escapeHtml(w.en) + '</td>' +
+        '<td>' + escapeHtml(w.fa) + '</td>' +
+        '<td>' + escapeHtml(w.notes || '') + '</td>' +
+      '</tr>'
+    ).join('');
+    printEl.innerHTML = '<h2>دفترچه واژگان من</h2><table><tr><th>#</th><th>English</th><th>معنی فارسی</th><th>توضیحات</th></tr>' + rows + '</table>';
+    showToast('در پنجره‌ی چاپ، مقصد را «Save as PDF» انتخاب کن.');
+    setTimeout(() => window.print(), 300);
+  });
+
+  /* =========================================================
+     VOCAB EXAM PROMPT BUILDER
+     ========================================================= */
+  function buildVocabPrompt(v){
+    const wordListJson = JSON.stringify(v.words.map(w => ({ en: w.en, fa: w.fa, notes: w.notes || '' })), null, 2);
+    return `تو یک طراح آزمون واژگان (vocabulary quiz) زبان انگلیسی هستی و باید خروجی‌ات را دقیقاً طبق یک قالب JSON مشخص تولید کنی تا در یک برنامه وب شبیه‌ساز آزمون قابل ایمپورت باشد.
+
+فهرست دقیق واژگانی که باید سؤالات را فقط و فقط از همین کلمات بسازی (هیچ کلمه‌ی دیگری اضافه نکن؛ باید تلاش کنی از همه‌ی این کلمات حداقل در یک سؤال استفاده شود، مگر اینکه تعداد سؤالات درخواستی کمتر از تعداد کلمات باشد):
+
+${wordListJson}
+
+هر آیتم شامل کلمه‌ی انگلیسی (en)، معنی فارسی (fa)، و در صورت وجود یادداشت/توضیح کاربر (notes) است. اگر notes خالی بود، خودت بر اساس کلمه یک سؤال مناسب طراحی کن.
+
+مشخصات آزمون:
+- تعداد سؤالات چهارگزینه‌ای: ${v.mcqCount}
+- تعداد سؤالات تشریحی: ${v.essayCount}
+- مجموع تعداد سؤالات: ${v.mcqCount + v.essayCount}
+- مدت‌زمان کل آزمون: ${v.duration} دقیقه
+- زبان صورت سؤال‌ها: ${v.language}
+- meta.topics باید دقیقاً برابر ["Vocabulary"] باشد و topic هر سؤال هم "Vocabulary" باشد.
+
+راهنمای طراحی سؤالات (این یک آزمون واژگان است، نه یک آزمون عمومی گرامر):
+- سؤالات باید صرفاً حول یادگیری و سنجش همین کلمات باشند، نه مباحث دیگر زبان.
+- برای سؤالات چهارگزینه‌ای، از انواع مختلف زیر به‌صورت ترکیبی استفاده کن (نه فقط یک نوع تکراری):
+  - معادل یا مترادف (synonym) انگلیسی دیگر برای کلمه
+  - متضاد (antonym) کلمه
+  - جای خالی در یک جمله که باید با کلمه‌ی درست پر شود (cloze / fill-in-the-blank)
+  - تشخیص معنی صحیح فارسی کلمه از بین چند گزینه
+  - تشخیص کاربرد صحیح کلمه در یک جمله از بین چند جمله
+- برای سؤالات تشریحی، مثلاً از کاربر بخواه با کلمه جمله بسازد، تفاوت دو کلمه‌ی مرتبط را توضیح دهد، یا کلمه را در یک موقعیت خاص به‌کار ببرد.
+- اگر تعداد سؤالات درخواستی با تعداد کلمات موجود همخوانی معقول ندارد (مثلاً فقط ۲ کلمه داریم ولی ۲۰ سؤال خواسته شده)، پیش از تولید JSON این موضوع را به کاربر گوشزد کن و از او بپرس آیا مایل است تعداد سؤالات را کم کند یا کلمات بیشتری انتخاب کند؛ در این حالت JSON تولید نکن تا پاسخ روشنی بگیری.
+
+${SCHEMA_AND_RULES}`;
+  }
+
+  const VOCAB_PLACEHOLDER = 'ابتدا حداقل یک کلمه از دفترچه‌ی واژگان بالا را برای آزمون تیک بزن، سپس روی «🧩 ساخت پرامپت آزمون واژگان» کلیک کن تا پرامپت اینجا ساخته شود.';
+  let VOCAB_PROMPT = VOCAB_PLACEHOLDER;
+  document.getElementById('vocabPromptText').value = VOCAB_PROMPT;
+
+  document.getElementById('buildVocabPromptBtn').addEventListener('click', () => {
+    const selected = vocabWords.filter(w => w.selected);
+    const mcqCount = parseInt(document.getElementById('vMcqCount').value, 10);
+    const essayCount = parseInt(document.getElementById('vEssayCount').value, 10);
+    const duration = parseInt(document.getElementById('vDuration').value, 10);
+    const language = document.getElementById('vLanguage').value;
+    const errBoxVP = document.getElementById('vocabPromptErrBox');
+    const errors = [];
+    if (selected.length === 0) errors.push('حداقل یک کلمه را از لیست بالا برای آزمون تیک بزن.');
+    if (isNaN(mcqCount) || mcqCount < 0) errors.push('تعداد سؤالات چهارگزینه‌ای باید عدد معتبر (صفر یا بیشتر) باشد.');
+    if (isNaN(essayCount) || essayCount < 0) errors.push('تعداد سؤالات تشریحی باید عدد معتبر (صفر یا بیشتر) باشد.');
+    if (!isNaN(mcqCount) && !isNaN(essayCount) && (mcqCount + essayCount) < 1) errors.push('مجموع تعداد سؤالات باید حداقل ۱ باشد.');
+    if (isNaN(duration) || duration < 1) errors.push('مدت‌زمان آزمون باید عدد معتبر و بزرگ‌تر از صفر باشد.');
+    if (errors.length){
+      errBoxVP.classList.remove('hidden');
+      errBoxVP.innerHTML = '<strong>لطفاً این موارد را برطرف کن:</strong><ul>' + errors.map(e => '<li>' + escapeHtml(e) + '</li>').join('') + '</ul>';
+      return;
+    }
+    errBoxVP.classList.add('hidden');
+    const generated = buildVocabPrompt({ mcqCount, essayCount, duration, language, words: selected });
+    VOCAB_PROMPT = generated;
+    if (isEditingVocabPrompt) exitVocabEditMode();
+    document.getElementById('vocabPromptText').value = VOCAB_PROMPT;
+    setVocabPromptVisible(true);
+    showToast('پرامپت آزمون واژگان ساخته شد.');
+    document.getElementById('vocabPromptBox').scrollIntoView({behavior:'smooth', block:'center'});
+  });
+
+  /* ---- vocab prompt visibility toggle ---- */
+  const vocabPromptContainer = document.getElementById('vocabPromptContainer');
+  const toggleVocabPromptBtn = document.getElementById('toggleVocabPromptBtn');
+  const toggleVocabIcon = document.getElementById('toggleVocabIcon');
+  const toggleVocabLabel = document.getElementById('toggleVocabLabel');
+  function setVocabPromptVisible(visible){
+    vocabPromptContainer.classList.toggle('open', visible);
+    toggleVocabPromptBtn.classList.toggle('expanded', visible);
+    toggleVocabIcon.textContent = visible ? '🙈' : '👁';
+    toggleVocabLabel.textContent = visible ? 'مخفی کردن پرامپت' : 'نمایش پرامپت';
+  }
+  toggleVocabPromptBtn.addEventListener('click', () => setVocabPromptVisible(!vocabPromptContainer.classList.contains('open')));
+
+  document.getElementById('copyVocabPromptBtn').addEventListener('click', function(){
+    const ta = document.getElementById('vocabPromptText');
+    const btn = this;
+    function done(){
+      const original = '📋 کپی پرامپت';
+      btn.textContent = '✅ کپی شد';
+      btn.classList.add('copied');
+      setTimeout(()=>{ btn.textContent = original; btn.classList.remove('copied'); }, 1800);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(ta.value).then(done).catch(()=>{ ta.select(); document.execCommand('copy'); done(); });
+    } else { ta.select(); document.execCommand('copy'); done(); }
+  });
+
+  /* ---- vocab prompt edit flow ---- */
+  const vocabPromptBox = document.getElementById('vocabPromptBox');
+  const vocabPromptTextEl = document.getElementById('vocabPromptText');
+  const vocabEditWarning = document.getElementById('vocabEditWarning');
+  const editVocabPromptBtn = document.getElementById('editVocabPromptBtn');
+  const vocabPromptFooterActions = document.getElementById('vocabPromptFooterActions');
+  let isEditingVocabPrompt = false;
+
+  function enterVocabEditMode(){
+    isEditingVocabPrompt = true;
+    vocabPromptTextEl.removeAttribute('readonly');
+    vocabPromptBox.classList.add('editing');
+    vocabEditWarning.classList.add('show');
+    vocabPromptFooterActions.classList.add('show');
+    editVocabPromptBtn.textContent = '🔒 قفل کردن ویرایش';
+    editVocabPromptBtn.classList.add('active');
+    vocabPromptTextEl.focus();
+  }
+  function exitVocabEditMode(){
+    isEditingVocabPrompt = false;
+    vocabPromptTextEl.setAttribute('readonly', 'true');
+    vocabPromptBox.classList.remove('editing');
+    vocabEditWarning.classList.remove('show');
+    vocabPromptFooterActions.classList.remove('show');
+    editVocabPromptBtn.textContent = '✏️ ویرایش پرامپت';
+    editVocabPromptBtn.classList.remove('active');
+  }
+  editVocabPromptBtn.addEventListener('click', function(){
+    if (isEditingVocabPrompt){ exitVocabEditMode(); return; }
+    const confirmed = window.confirm(
+      'ویرایش پرامپت ممکن است ساختار توضیح‌داده‌شده در آن را تغییر دهد و باعث شود فایل JSON تولیدشده توسط هوش مصنوعی با این برنامه سازگار نباشد.\n\nاگر مطمئن نیستید دقیقاً چه چیزی را تغییر می‌دهید، این کار را انجام ندهید.\n\nآیا مطمئن هستید که می‌خواهید ویرایش را شروع کنید؟'
+    );
+    if (confirmed) enterVocabEditMode();
+  });
+  document.getElementById('resetVocabPromptBtn').addEventListener('click', function(){
+    vocabPromptTextEl.value = VOCAB_PROMPT;
+    exitVocabEditMode();
+    showToast('پرامپت به آخرین نسخه‌ی ساخته‌شده بازگشت.');
+  });
+  document.getElementById('downloadCustomVocabPromptBtn').addEventListener('click', function(){
+    const blob = new Blob([vocabPromptTextEl.value], {type:'text/plain;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'custom-vocab-exam-prompt.txt';
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+    showToast('پرامپت شخصی‌سازی‌شده دانلود شد.');
+  });
+
+  /* =========================================================
      2. EXAM APP STATE
      ========================================================= */
   let examData = null;
@@ -867,13 +1716,20 @@ ${SCHEMA_AND_RULES}`;
   function escapeHtml(str){
     const d = document.createElement('div'); d.textContent = str; return d.innerHTML;
   }
-  const promptCard = document.getElementById('promptCard');
+  function animateIn(el){
+    if (!el) return;
+    el.classList.remove('fade-in-up');
+    void el.offsetWidth; /* force reflow so the animation restarts */
+    el.classList.add('fade-in-up');
+  }
+  const promptBuilderArea = document.getElementById('promptBuilderArea');
   const appCard = document.getElementById('appCard');
   function switchScreen(el, subtitle){
     [screenImport, screenExam, screenResults].forEach(s => s.classList.add('hidden'));
     el.classList.remove('hidden');
+    animateIn(el);
     stepSubtitle.textContent = subtitle;
-    promptCard.classList.toggle('hidden', el === screenExam || el === screenResults);
+    promptBuilderArea.classList.toggle('hidden', el === screenExam || el === screenResults);
     appCard.scrollIntoView({behavior:'smooth', block:'start'});
   }
 
@@ -1171,6 +2027,8 @@ ${SCHEMA_AND_RULES}`;
           '<div class="essay-answer-box">' + (a.answerText ? escapeHtml(a.answerText) : '<i style="color:var(--muted)">پاسخی وارد نشده</i>') + '</div>';
       }
       list.appendChild(card);
+      card.classList.add('fade-in-up');
+      card.style.animationDelay = (Math.min(i, 8) * 0.04) + 's';
     });
   }
 
